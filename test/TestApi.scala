@@ -51,10 +51,3 @@ class TestPandaAuth @Inject() (val wsClient: WSClient) extends AuthActions {
   val domain = "test"
   def system = "test"
 }
-
-// class TestApiController @Inject() (dataStore: DataStore,
-//                          publisher: AtomPublisher,
-//                          conf: Configuration,
-//                          wsClient: WSClient)
-//     extends controllers.Api(dataStore, publisher, conf, wsClient)
-//     with TestPandaAuth

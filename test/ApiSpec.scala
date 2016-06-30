@@ -5,13 +5,11 @@ import data.{ AtomPublisher, DataStore, VersionConflictError }
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.Matchers._
-import play.api.mvc.{ AnyContent, Cookie, Request }
 
 import util.atom.MediaAtomImplicits
 
 import play.api.libs.json._
 import controllers.Api
-import org.scalatestplus.play._
 import play.api.test._
 import play.api.http.HttpVerbs
 import play.api.test.Helpers._

@@ -21,3 +21,7 @@ trait ThriftSerializer[T <: ThriftStruct] {
   }
 
 }
+
+object ThriftSerializer {
+  def apply[T <: ThriftStruct] = new ThriftSerializer[T] {}
+}

@@ -15,8 +15,6 @@ class KinesisAtomPublisher (val streamName: String, val kinesis: AmazonKinesisCl
 
   logger.info(s"KinsisAtomPublisher started with streamName $streamName")
 
-  private def awsClient = new AmazonKinesisClient
-
   @Inject() def this(awsConfig: util.AWSConfig) = this(awsConfig.kinesisStreamName, awsConfig.kinesisClient)
 
   def makeParititionKey(event: ContentAtomEvent): String = event.atom.atomType.name
@@ -25,4 +23,10 @@ class KinesisAtomPublisher (val streamName: String, val kinesis: AmazonKinesisCl
       val data = serializeEvent(event)
       kinesis.putRecord(streamName, data, makeParititionKey(event))
     }
+}
+
+class KinesisAtomReindexer (streamName: String, kinesis: AmazonKinesisClient)
+    extends KinesisAtomPublisher(streamName, kinesis) {
+  @Inject() def this(awsConfig: util.AWSConfig) =
+    this(awsConfig.kinesisReindexStreamName, awsConfig.kinesisClient)
 }
