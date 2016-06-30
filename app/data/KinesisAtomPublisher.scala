@@ -1,12 +1,12 @@
 package data
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.gu.contentatom.thrift.ContentAtomEvent
+import com.gu.contentatom.thrift.{ Atom, ContentAtomEvent }
 
 import com.amazonaws.services.kinesis.AmazonKinesisClient
 import javax.inject.{ Inject, Singleton }
 import play.api.Configuration
-import scala.util.Try
+import scala.util.{ Success, Failure, Try }
 
 class KinesisAtomPublisher (val streamName: String, val kinesis: AmazonKinesisClient)
     extends AtomPublisher
@@ -26,7 +26,11 @@ class KinesisAtomPublisher (val streamName: String, val kinesis: AmazonKinesisCl
 }
 
 class KinesisAtomReindexer (streamName: String, kinesis: AmazonKinesisClient)
-    extends KinesisAtomPublisher(streamName, kinesis) {
+    extends KinesisAtomPublisher(streamName, kinesis)
+    with AtomReindexer {
   @Inject() def this(awsConfig: util.AWSConfig) =
     this(awsConfig.kinesisReindexStreamName, awsConfig.kinesisClient)
+
+  def reindexAtoms(atoms: TraversableOnce[Atom]) = Failure(new Exception())
+
 }

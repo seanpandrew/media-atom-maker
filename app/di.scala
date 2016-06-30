@@ -9,9 +9,9 @@ class Module() extends AbstractModule {
 
     bind(classOf[AuthActions]) to classOf[controllers.PanDomainAuthActions]
 
-    bind(classOf[AtomPublisher]) to (classOf[KinesisAtomPublisher])
+    bind(classOf[AtomPublisher]) to classOf[KinesisAtomPublisher]
 
-    (bind(classOf[AtomPublisher])
-       annotatedWith Names.named("reindex")) to (classOf[KinesisAtomReindexer])
+    bind(classOf[AtomReindexer]) to classOf[KinesisAtomReindexer]
+
   }
 }
