@@ -16,6 +16,7 @@ import TestData._
 
 class ReindexSpec
     extends MediaAtomSuite
+    with MustMatchers
     with MockitoSugar {
 
   val testAtoms = Map("1" -> testAtom, "2" -> testAtom)
@@ -26,6 +27,13 @@ class ReindexSpec
       bind[AtomReindexer] toInstance mock[AtomReindexer],
       bind[DataStore] toInstance initialDataStore
     )
+
+  // def withReindexer(publisher: AtomReindexer = defaultReindexer)(f: ReindexController => Unit) =
+  //   f(guicer
+  //       .overrides(bind(classOf[AtomReindexer])
+  //                    .toInstance(publisher))
+  //       .injector
+  //       .instanceOf(classOf[controllers.ReindexController]))
 
   // def reindexTest(
   //   reindexer: AtomReindexer = mock[AtomReindexer],
@@ -54,4 +62,12 @@ class ReindexSpec
     }
   }
 
+    //     testAtoms.values foreach { atom =>
+    //       val req = FakeRequest()
+    //       val res = call(reindexer.reindexLive(None, None), req)
+    //       status(res) mustEqual OK
+    //       verify(reindexKinesisMock).reindexAtoms(any())
+    //     }
+    //   }
+    // }
 }

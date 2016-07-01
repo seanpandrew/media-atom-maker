@@ -10,7 +10,7 @@ import data._
 import play.api.Configuration
 import play.api.libs.ws.WSClient
 
-import javax.inject.Inject
+import javax.inject.{ Inject, Singleton }
 
 import com.gu.pandomainauth.model.PanDomainAuthSettings
 
@@ -31,7 +31,10 @@ class DummyActor extends Actor {
   }
 }
 
+@Singleton
 class TestPandaAuth @Inject() (val wsClient: WSClient) extends AuthActions {
+
+  println("PMR 1603 TestPandaAuth")
 
   def authCallbackUrl = ""
   def validateUser(user: AuthenticatedUser) = true
