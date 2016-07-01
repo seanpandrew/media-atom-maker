@@ -2,19 +2,21 @@ package controllers
 
 import cats.data.Xor
 import com.gu.contentatom.thrift.Atom
+import com.gu.pandomainauth.action.AuthActions
 import data._
 
-import javax.inject.{ Inject, Named }
+import javax.inject.Inject
 import play.api.libs.json.{ JsObject, JsNumber }
-import play.api.mvc.{ Controller, Action }
+import play.api.mvc.Action
 
 import play.Logger
 import scala.util.{ Failure, Success }
 
 class ReindexController @Inject() (
   publisher: AtomReindexer,
-  dataStore: DataStore
-) extends Controller {
+  dataStore: DataStore,
+  val authActions: AuthActions
+) extends AtomController {
 
   def reindexAtoms(atoms: TraversableOnce[Atom]): Xor[Throwable, Long] = {
     publisher.reindexAtoms(atoms) match {
@@ -29,7 +31,7 @@ class ReindexController @Inject() (
       count <- reindexAtoms(atoms)
     } yield count
     res.fold(
-      err   => InternalServerError(err.toString),
+      err   => InternalServerError(jsonError(err)),
       count => Ok(JsObject("count" -> JsNumber(count) :: Nil))
     )
   }

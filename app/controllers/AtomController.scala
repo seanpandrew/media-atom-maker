@@ -24,6 +24,6 @@ trait AtomController extends Controller {
       }
     }
 
-  def jsonError(msg: String): JsObject = JsObject(Seq("error" -> JsString(msg)))
-
+  def jsonError(msg: String):   JsObject = JsObject(Seq("error" -> JsString(msg)))
+  def jsonError(ex: Throwable): JsObject = jsonError(ex.getMessage)
 }

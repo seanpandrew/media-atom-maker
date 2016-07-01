@@ -38,7 +38,7 @@ class ApiSpec
   val youtubeId  =  "7H9Z4sn8csA"
   val youtubeUrl = s"https://www.youtube.com/watch?v=${youtubeId}"
 
-  def defaultMockPublisher: AtomPublisher = {
+  def defaultMockPublisher = {
     val p = mock[AtomPublisher]
     when(p.publishAtomEvent(any())).thenReturn(Success(()))
     p
