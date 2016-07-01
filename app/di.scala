@@ -6,12 +6,8 @@ import data._
 
 class Module() extends AbstractModule {
   def configure() = {
-
     bind(classOf[AuthActions]) to classOf[controllers.PanDomainAuthActions]
-
     bind(classOf[AtomPublisher]) to classOf[KinesisAtomPublisher]
-
     bind(classOf[AtomReindexer]) to classOf[KinesisAtomReindexer]
-
   }
 }

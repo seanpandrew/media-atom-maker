@@ -3,11 +3,12 @@ package test
 import com.google.inject.AbstractModule
 import controllers.ReindexController
 import javax.inject.Provider
-import play.api.Configuration
+import org.scalatest.{ TestData => ScalaTestTestData }
+import play.api.{ Application, Configuration }
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
 
-import org.scalatestplus.play.{ PlaySpec, OneAppPerSuite }
+import org.scalatestplus.play.{ PlaySpec, OneAppPerTest }
 
 import com.gu.pandomainauth.action.AuthActions
 
@@ -18,36 +19,57 @@ import controllers.Api
 import play.api.inject.bind
 import play.api.inject.Injector
 
-import play.api.inject.guice.GuiceableModule
-import scala.reflect.classTag
+import play.api.inject.guice.{ GuiceableModule, GuiceableModuleConversions }
+import scala.reflect.ClassTag
 
-trait MediaAtomSuite extends PlaySpec with OneAppPerSuite {
+trait MediaAtomSuite extends PlaySpec
+    with OneAppPerTest
+    with GuiceableModuleConversions {
 
-  val defaultGuicer = new GuiceApplicationBuilder()
-    .overrides(bind(classOf[AuthActions]).to(classOf[TestPandaAuth]))
-    .overrides(bind(classOf[DataStore]).to(classOf[MemoryStore]))
+  /**
+    * This trait provides one app, and one Guice module per test. The
+    * Guice module will be built from the components returned by the
+    * default* methods, which can be overridden to customise in your
+    * suite.
+    */
 
-  // override to provide Suite-wide default bindings
-  def guicer = defaultGuicer
+  private var guicer: GuiceApplicationBuilder = _
 
-  override lazy val app = guicer.build
-  implicit val mat = app.materializer
 
-  def injectedTest(customBindings: GuiceableModule*)(block: Injector => Unit) = {
-    block(
-      guicer.overrides(customBindings: _*).injector
-    )
+  /**
+    * make the things available implicitly to the tests
+    */
+  implicit def injector: Injector = guicer.injector()
+
+  // overridden from OneAppPerTest trait
+  override def newAppForTest(testData: ScalaTestTestData): Application = guicer.build()
+
+  /**
+    * override this to customise; e.g. to add to the existing bindings:
+    * 
+    *    override def newGuiceForTest = super.newGuiceForTest.bindings(...)
+    */
+  def newGuiceForTest = new GuiceApplicationBuilder()
+        .overrides(bind[AuthActions] to classOf[TestPandaAuth])
+
+ override def withFixture(test: NoArgTest) = {
+    synchronized {
+      guicer = newGuiceForTest
+    }
+    super.withFixture(test)
   }
 
-  def iget[A : ClassTag](implicit inj: Injector): A = inj.instanceOf[A]
+  implicit def mat = app.materializer
+
+  def iget[A : ClassTag]: A = injector.instanceOf[A]
 
   /**
     * some shortcut messages for getting specific items from the injector
     */
-  def reindexController(implicit inj: Injector) = iget[ReindexController]
-  def reindexPublisher(implicit inj: Injector)  = iget[AtomReindexer]
-  def apiController(implicit inj: Injector)     = iget[Api]
-  def dataStore(implicit inj: Injector)         = iget[DataStore]
+  def reindexController = iget[ReindexController]
+  def reindexPublisher  = iget[AtomReindexer]
+  def apiController     = iget[Api]
+  def dataStore         = iget[DataStore]
 
   val oneHour = 3600000L
   def getApi(dataStore: DataStore, publisher: AtomPublisher) = {
