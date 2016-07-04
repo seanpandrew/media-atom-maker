@@ -77,36 +77,26 @@ class ApiSpec
     multiFactor = true
   )
 
-  def requestWithCookies =
-    FakeRequest().withCookies(apiController.authActions.generateCookies(testUser): _*)
-
-  // def withApi(dataStore: DataStore = initialDataStore,
-  //             publisher: AtomPublisher = defaultMockPublisher)
-  //            (block: Api => Unit) =
-  //   block(getApi(dataStore, publisher))
+  def requestWithCookies(api: Api) =
+    FakeRequest().withCookies(api.authActions.generateCookies(testUser): _*)
 
   "api" should {
-    "return a media atom" in { api =>
-      println("PMR 1607-1")
-      val result = apiController.getMediaAtom("1").apply(requestWithCookies)
-      println("PMR 1607-2")
+    "return a media atom" in {
+      val result = api.getMediaAtom("1").apply(requestWithCookies(api))
       status(result) mustEqual OK
-      println("PMR 1607-3")
       val json = contentAsJson(result)
                               (json \ "id").as[String] mustEqual "1"
-      println("PMR 1607-4")
         (json \ "data" \ "assets").as[List[JsValue]] must have size 2
-      println("PMR 1607-5")
     }
-    // "return NotFound for missing atom" in {
-    //   val result = apiController.getMediaAtom("xyzzy").apply(requestWithCookies)
-    //   status(result) mustEqual NOT_FOUND
-    // }
-    //   "return not found when adding asset to a non-existant atom" in withApi() { api =>
-    //     val req = requestWithCookies(api).withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "3")
-    //     val result = call(api.addAsset("xyzzy"), req)
-    //     status(result) mustEqual NOT_FOUND
-    //   }
+    "return NotFound for missing atom" in {
+      val result = api.getMediaAtom("xyzzy").apply(requestWithCookies(api))
+      status(result) mustEqual NOT_FOUND
+    }
+    "return not found when adding asset to a non-existant atom" in {
+      val req = requestWithCookies(api).withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "3")
+      val result = call(api.addAsset("xyzzy"), req)
+      status(result) mustEqual NOT_FOUND
+    }
 
     //   "complain when catching simultaenous update from datastore" in {
     //     val mockDataStore = mock[DataStore]

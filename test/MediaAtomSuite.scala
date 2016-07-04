@@ -3,8 +3,7 @@ package test
 import com.google.inject.AbstractModule
 import controllers.ReindexController
 import javax.inject.Provider
-import org.scalatest.{ TestData => ScalaTestTestData }
-import org.scalatest.fixture
+import org.scalatest.{ TestData => ScalaTestTestData, WordSpec }
 import play.api.{ Application, Configuration }
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
@@ -23,7 +22,7 @@ import play.api.inject.Injector
 import play.api.inject.guice.{ GuiceableModule, GuiceableModuleConversions }
 import scala.reflect.ClassTag
 
-class MediaAtomSuite[F : ClassTag] extends fixture.WordSpec
+class MediaAtomSuite[F : ClassTag] extends WordSpec
     with OneAppPerTest
     with GuiceableModuleConversions {
 
@@ -36,37 +35,33 @@ class MediaAtomSuite[F : ClassTag] extends fixture.WordSpec
     * suite.
     */
 
-  private var guicer: GuiceApplicationBuilder = _
-
   /**
     * make the things available implicitly to the tests
     */
-  implicit def injector: Injector = guicer.injector()
+  //implicit def injector: Injector = guicer.injector()
 
   // overridden from OneAppPerTest trait
-  override def newAppForTest(testData: ScalaTestTestData): Application = guicer.build()
+  override def newAppForTest(testData: ScalaTestTestData): Application = newGuiceForTest.build()
 
   /**
     * override this to customise; e.g. to add to the existing bindings:
     * 
     *    override def newGuiceForTest = super.newGuiceForTest.bindings(...)
     */
-  def newGuiceForTest = {
-    println("PMR 1605 newGuiceForTest")
-    new GuiceApplicationBuilder()
-      .overrides(bind[AuthActions] to classOf[TestPandaAuth])
-  }
+  def newGuiceForTest = new GuiceApplicationBuilder()
+    .overrides(bind[AuthActions] to classOf[TestPandaAuth])
 
- override def withFixture(test: OneArgTest) = {
-    synchronized {
-      guicer = newGuiceForTest
+  override def withFixture(test: NoArgTest) = {
+    try {
+      super.withFixture(test)
+    } finally {
+      iget[AuthActions].shutdown
     }
-   super.withFixture(test.toNoArgTest(iget[FixtureParam]))
   }
 
   implicit def mat = app.materializer
 
-  def iget[A : ClassTag]: A = injector.instanceOf[A]
+  def iget[A : ClassTag]: A = app.injector.instanceOf[A]
 
   /**
     * some shortcut messages for getting specific items from the
@@ -74,17 +69,11 @@ class MediaAtomSuite[F : ClassTag] extends fixture.WordSpec
     * each time they are called (unless they are annotated
     * as @Singleton or similar) so use sparingly
     */
-  def reindexController = iget[ReindexController]
-  def reindexPublisher  = iget[AtomReindexer]
-  def apiController     = iget[Api]
-  def dataStore         = iget[DataStore]
+  def reindexer        = iget[ReindexController]
+  def reindexPublisher = iget[AtomReindexer]
+  def api              = iget[Api]
+  def dataStore        = iget[DataStore]
 
   val oneHour = 3600000L
-  def getApi(dataStore: DataStore, publisher: AtomPublisher) = {
-    guicer
-      .overrides(bind(classOf[DataStore]).toInstance(dataStore))
-      .overrides(bind(classOf[AtomPublisher]).toInstance(publisher))
-      .injector
-      .instanceOf(classOf[Api])
-  }
+
 }

@@ -4,6 +4,7 @@ import com.gu.contentatom.thrift.Atom
 import data._
 import org.mockito.ArgumentCaptor
 import org.scalatest.mock.MockitoSugar
+import org.scalatest.MustMatchers
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
 import play.api.test._
@@ -46,7 +47,7 @@ class ReindexSpec
   "reindexer" should {
     "return error if publisher fails" in {
       when(reindexPublisher.reindexAtoms(any())).thenReturn(Failure(new Exception("forced failure")))
-      val res = call(reindexController.reindexLive(None, None), FakeRequest())
+      val res = call(reindexer.reindexLive(None, None), FakeRequest())
       status(res) mustEqual INTERNAL_SERVER_ERROR
       contentAsJson(res) mustEqual JsObject("error" -> JsString("forced failure") :: Nil)
     }
@@ -54,7 +55,7 @@ class ReindexSpec
     "call publisher with atoms in dataStore" in {
       when(reindexPublisher.reindexAtoms(any()))
         .thenReturn(Success(testAtoms.values.size.toLong))
-      val res = call(reindexController.reindexLive(None, None), FakeRequest())
+      val res = call(reindexer.reindexLive(None, None), FakeRequest())
       status(res) mustEqual OK
       val cap = ArgumentCaptor.forClass(classOf[TraversableOnce[Atom]])
       verify(reindexPublisher).reindexAtoms(cap.capture())
