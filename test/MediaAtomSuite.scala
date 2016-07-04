@@ -22,7 +22,7 @@ import play.api.inject.Injector
 import play.api.inject.guice.{ GuiceableModule, GuiceableModuleConversions }
 import scala.reflect.ClassTag
 
-class MediaAtomSuite[F : ClassTag] extends WordSpec
+class MediaAtomSuite[F : ClassTag] extends org.scalatest.fixture.WordSpec
     with OneAppPerTest
     with GuiceableModuleConversions {
 
@@ -35,13 +35,18 @@ class MediaAtomSuite[F : ClassTag] extends WordSpec
     * suite.
     */
 
-  /**
-    * make the things available implicitly to the tests
-    */
-  //implicit def injector: Injector = guicer.injector()
+  /* Read a value from the app's injector.
+   *
+   * NOTE that because of the way injection works, unless the class A
+   * is marked as singleton, then each time you call this you will
+   * generate a new instance of A */
+  def iget[A : ClassTag] = app.injector.instanceOf[A]
 
-  // overridden from OneAppPerTest trait
-  override def newAppForTest(testData: ScalaTestTestData): Application = newGuiceForTest.build()
+  /*
+   * Create a new application instance: overridden from OneAppPerTest
+   * trait and will be called by code in that trait before each test.
+   */
+   override def newAppForTest(testData: ScalaTestTestData): Application = newGuiceForTest.build()
 
   /**
     * override this to customise; e.g. to add to the existing bindings:
@@ -52,35 +57,29 @@ class MediaAtomSuite[F : ClassTag] extends WordSpec
     .overrides(bind[AuthActions] to classOf[TestPandaAuth])
 
   /**
-    * XXX - Cannot find a way to use `withFixture` and `OneArgTest`
-    * here, because of an ordering issue: in order to create the
+    * Cannot find a way to use `withFixture` and `OneArgTest` here,
+    * because of an ordering issue: in order to create the
     * application, which is a requirement for injecting the fixture,
     * we need to call `super.withFixture()`, but that will trigger
     * running the test, meaning that by then it is too late.
     */
 
-  override def withFixture(test: NoArgTest) = {
-    try {
-      super.withFixture(test)
-    } finally {
-      iget[AuthActions].shutdown
-    }
+  override def withFixture(test: OneArgTest) = try {
+    super.withFixture(
+      new NoArgTest {
+        def apply() = test(iget[FixtureParam])
+        val configMap = test.configMap
+        val name: String = test.name
+        val scopes = test.scopes
+        val tags = test.tags
+        val text = test.text
+      }
+    )
+  } finally {
+    iget[AuthActions].shutdown
   }
 
   implicit def mat = app.materializer
-
-  def iget[A : ClassTag]: A = app.injector.instanceOf[A]
-
-  /**
-    * some shortcut messages for getting specific items from the
-    * injector; these will probably trigger creation of a new instance
-    * each time they are called (unless they are annotated
-    * as @Singleton or similar) so use sparingly
-    */
-  def reindexer        = iget[ReindexController]
-  def reindexPublisher = iget[AtomReindexer]
-  def api              = iget[Api]
-  def dataStore        = iget[DataStore]
 
   val oneHour = 3600000L
 

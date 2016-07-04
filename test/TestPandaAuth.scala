@@ -34,8 +34,6 @@ class DummyActor extends Actor {
 @Singleton
 class TestPandaAuth @Inject() (val wsClient: WSClient) extends AuthActions {
 
-  println("PMR 1603 TestPandaAuth")
-
   def authCallbackUrl = ""
   def validateUser(user: AuthenticatedUser) = true
 

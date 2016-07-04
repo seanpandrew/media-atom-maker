@@ -1,5 +1,6 @@
 package test
 
+import controllers.ReindexController
 import com.gu.contentatom.thrift.Atom
 import data._
 import org.mockito.ArgumentCaptor
@@ -16,7 +17,7 @@ import play.api.libs.json._
 import TestData._
 
 class ReindexSpec
-    extends MediaAtomSuite
+    extends MediaAtomSuite[ReindexController]
     with MustMatchers
     with MockitoSugar {
 
@@ -44,21 +45,25 @@ class ReindexSpec
   //   bind[DataStore] toInstance dataStore
   // ) _
 
+  def reindexPublisher = iget[AtomReindexer]
+
   "reindexer" should {
-    "return error if publisher fails" in {
-      when(reindexPublisher.reindexAtoms(any())).thenReturn(Failure(new Exception("forced failure")))
+    "return error if publisher fails" in { reindexer =>
+      val pub = reindexPublisher
+      when(pub.reindexAtoms(any())).thenReturn(Failure(new Exception("forced failure")))
       val res = call(reindexer.reindexLive(None, None), FakeRequest())
       status(res) mustEqual INTERNAL_SERVER_ERROR
       contentAsJson(res) mustEqual JsObject("error" -> JsString("forced failure") :: Nil)
     }
 
-    "call publisher with atoms in dataStore" in {
-      when(reindexPublisher.reindexAtoms(any()))
+    "call publisher with atoms in dataStore" in { reindexer =>
+      val pub = reindexPublisher
+      when(pub.reindexAtoms(any()))
         .thenReturn(Success(testAtoms.values.size.toLong))
       val res = call(reindexer.reindexLive(None, None), FakeRequest())
       status(res) mustEqual OK
       val cap = ArgumentCaptor.forClass(classOf[TraversableOnce[Atom]])
-      verify(reindexPublisher).reindexAtoms(cap.capture())
+      verify(pub).reindexAtoms(cap.capture())
       cap.getValue().toList must contain theSameElementsAs(testAtoms.values)
     }
   }

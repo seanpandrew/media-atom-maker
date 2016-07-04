@@ -44,31 +44,6 @@ class ApiSpec
   val youtubeId  =  "7H9Z4sn8csA"
   val youtubeUrl = s"https://www.youtube.com/watch?v=${youtubeId}"
 
-  // class MockPublisherProvider extends javax.inject.Provider[AtomPublisher] {
-  //   def get = {
-  //     println("PMR 1625 :> mock publisher called")
-  //     val p = mock[AtomPublisher]
-  //     when(p.publishAtomEvent(any())).thenReturn(Success(()))
-  //     p
-  //   }
-  // }
-
-  // override def guicer = defaultGuicer
-  //   .overrides(play.api.inject.bind[AtomPublisher].toProvider(classOf[MockPublisherProvider]))
-
-  // XXX : for backwards compatibility while I work on the code, remove it
-  // def defaultMockPublisher = {
-  //   val p = mock[AtomPublisher]
-  //   when(p.publishAtomEvent(any())).thenReturn(Success(()))
-  //   p
-  // }
-
-  // def failingMockPublisher: AtomPublisher = {
-  //   val p = mock[AtomPublisher]
-  //   when(p.publishAtomEvent(any())).thenReturn(Failure(new Exception("failure")))
-  //   p
-  // }
-
   def testUser: AuthenticatedUser = AuthenticatedUser(
     user = User("Homer", "Simpson", "homer.simpson@guardian.co.uk", None),
     authenticatingSystem = "test",
@@ -81,18 +56,18 @@ class ApiSpec
     FakeRequest().withCookies(api.authActions.generateCookies(testUser): _*)
 
   "api" should {
-    "return a media atom" in {
+    "return a media atom" in { api =>
       val result = api.getMediaAtom("1").apply(requestWithCookies(api))
       status(result) mustEqual OK
       val json = contentAsJson(result)
                               (json \ "id").as[String] mustEqual "1"
         (json \ "data" \ "assets").as[List[JsValue]] must have size 2
     }
-    "return NotFound for missing atom" in {
+    "return NotFound for missing atom" in { api =>
       val result = api.getMediaAtom("xyzzy").apply(requestWithCookies(api))
       status(result) mustEqual NOT_FOUND
     }
-    "return not found when adding asset to a non-existant atom" in {
+    "return not found when adding asset to a non-existant atom" in { api =>
       val req = requestWithCookies(api).withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "3")
       val result = call(api.addAsset("xyzzy"), req)
       status(result) mustEqual NOT_FOUND
