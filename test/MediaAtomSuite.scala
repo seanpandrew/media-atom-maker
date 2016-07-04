@@ -51,6 +51,14 @@ class MediaAtomSuite[F : ClassTag] extends WordSpec
   def newGuiceForTest = new GuiceApplicationBuilder()
     .overrides(bind[AuthActions] to classOf[TestPandaAuth])
 
+  /**
+    * XXX - Cannot find a way to use `withFixture` and `OneArgTest`
+    * here, because of an ordering issue: in order to create the
+    * application, which is a requirement for injecting the fixture,
+    * we need to call `super.withFixture()`, but that will trigger
+    * running the test, meaning that by then it is too late.
+    */
+
   override def withFixture(test: NoArgTest) = {
     try {
       super.withFixture(test)
