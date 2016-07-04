@@ -6,8 +6,6 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.Matchers._
 
-import play.api.inject.bind
-
 import util.atom.MediaAtomImplicits
 
 import play.api.libs.json._
@@ -22,9 +20,13 @@ import scala.util.{ Success, Failure }
 
 import com.gu.pandomainauth.model._
 
+import play.api.inject.bind
+
 import java.util.Date
 
 import TestData._
+
+import play.api.inject.guice.GuiceableModule
 
 class ApiSpec
     extends MediaAtomSuite[Api]
@@ -35,11 +37,6 @@ class ApiSpec
     with MediaAtomImplicits {
 
   def initialDataStore = new MemoryStore(Map("1" -> testAtom))
-
-  override def newGuiceForTest =
-    super.newGuiceForTest overrides (
-      bind[DataStore] toInstance initialDataStore
-    )
 
   val youtubeId  =  "7H9Z4sn8csA"
   val youtubeUrl = s"https://www.youtube.com/watch?v=${youtubeId}"
@@ -52,40 +49,41 @@ class ApiSpec
     multiFactor = true
   )
 
+  def api(implicit fix: FixtureData): Api = fix.param
+
   def requestWithCookies(api: Api) =
     FakeRequest().withCookies(api.authActions.generateCookies(testUser): _*)
 
   "api" should {
-    "return a media atom" in { api =>
+    "return a media atom" in atomTest() { implicit f =>
       val result = api.getMediaAtom("1").apply(requestWithCookies(api))
       status(result) mustEqual OK
       val json = contentAsJson(result)
                               (json \ "id").as[String] mustEqual "1"
         (json \ "data" \ "assets").as[List[JsValue]] must have size 2
     }
-    "return NotFound for missing atom" in { api =>
+    "return NotFound for missing atom" in atomTest() { implicit f =>
       val result = api.getMediaAtom("xyzzy").apply(requestWithCookies(api))
       status(result) mustEqual NOT_FOUND
     }
-    "return not found when adding asset to a non-existant atom" in { api =>
+    "return not found when adding asset to a non-existant atom" in atomTest() { implicit f =>
       val req = requestWithCookies(api).withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "3")
       val result = call(api.addAsset("xyzzy"), req)
       status(result) mustEqual NOT_FOUND
     }
 
-    //   "complain when catching simultaenous update from datastore" in {
-    //     val mockDataStore = mock[DataStore]
-    //     when(mockDataStore.getMediaAtom(any())).thenReturn(Some(testAtom))
-    //     when(mockDataStore.updateMediaAtom(any())).thenReturn(Xor.Left(VersionConflictError(1)))
-    //     withApi(dataStore = mockDataStore) { api =>
-    //       val req = requestWithCookies(api)
-    //         .withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
-    //       val result = call(api.addAsset("1"), req)
-
-    //       status(result) mustEqual INTERNAL_SERVER_ERROR
-    //       verify(mockDataStore).updateMediaAtom(any())
-    //     }
-    //   }
+    "complain when catching simultaenous update from datastore" in {
+      atomTest(bind[DataStore] toInstance mock[DataStore]) { implicit f =>
+        val ds = f.iget[DataStore]
+        when(ds.getMediaAtom(any())).thenReturn(Some(testAtom))
+        when(ds.updateMediaAtom(any())).thenReturn(Xor.Left(VersionConflictError(1)))
+        val req = requestWithCookies(api)
+          .withFormUrlEncodedBody("uri" -> youtubeUrl, "version" -> "1")
+        val result = call(api.addAsset("1"), req)
+        status(result) mustEqual INTERNAL_SERVER_ERROR
+        verify(ds).updateMediaAtom(any())
+      }
+    }
 
     //   "add an asset to an atom" in {
     //     val dataStore = initialDataStore
