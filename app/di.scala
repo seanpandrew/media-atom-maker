@@ -4,10 +4,12 @@ import com.gu.pandomainauth.action.AuthActions
 
 import data._
 
-class Module() extends AbstractModule {
+class AtomModule extends AbstractModule {
   def configure() = {
-    bind(classOf[AuthActions]) to classOf[controllers.PanDomainAuthActions]
+    bind(classOf[AuthActions])   to classOf[controllers.PanDomainAuthActions]
     bind(classOf[AtomPublisher]) to classOf[KinesisAtomPublisher]
     bind(classOf[AtomReindexer]) to classOf[KinesisAtomReindexer]
   }
 }
+
+class Module extends AtomModule
