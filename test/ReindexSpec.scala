@@ -24,13 +24,14 @@ class ReindexSpec
     with MockitoSugar {
 
   val testAtoms = Map("1" -> testAtom, "2" -> testAtom)
-  def initialDataStore = new MemoryStore(testAtoms)
 
-  override def defaultOverrides =
-    super.defaultOverrides ++ Seq[GuiceableModule](
-      bind[DataStore] toInstance initialDataStore,
-      bind[AtomReindexer] toInstance mock[AtomReindexer]
-    )
+  override def initialDataStore = new MemoryStore(testAtoms)
+
+  // override def defaultOverrides =
+  //   super.defaultOverrides ++ Seq[GuiceableModule](
+  //     bind[DataStore] toInstance initialDataStore,
+  //     bind[AtomReindexer] toInstance mock[AtomReindexer]
+  //   )
 
   // def withReindexer(publisher: AtomReindexer = defaultReindexer)(f: ReindexController => Unit) =
   //   f(guicer

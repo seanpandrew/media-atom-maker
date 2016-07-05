@@ -1,8 +1,11 @@
 package test
 
-import com.gu.contentatom.thrift.{ ContentAtomEvent, _ }
+import com.gu.pandomainauth.model._
+
+import com.gu.contentatom.thrift.{ContentAtomEvent, User => _, _ }
 import com.gu.contentatom.thrift.atom.media._
 import java.util.Date
+import scala.concurrent.duration._
 
 object TestData {
   val testAtom = Atom(
@@ -33,4 +36,13 @@ object TestData {
 
   def testAtomEvent(atom: Atom = testAtom) =
     ContentAtomEvent(testAtom, EventType.Update, (new Date()).getTime())
+
+  def testUser: AuthenticatedUser = AuthenticatedUser(
+    user = User("Homer", "Simpson", "homer.simpson@guardian.co.uk", None),
+    authenticatingSystem = "test",
+    authenticatedIn = Set("test"),
+    expires = new Date().getTime + (1.hour.toMillis),
+    multiFactor = true
+  )
+
 }

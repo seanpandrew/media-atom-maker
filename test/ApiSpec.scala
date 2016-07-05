@@ -18,15 +18,12 @@ import data.MemoryStore
 import org.scalatest.{ AppendedClues, MustMatchers }
 import scala.util.{ Success, Failure }
 
-import com.gu.pandomainauth.model._
-
 import play.api.inject.bind
 
-import java.util.Date
+//import java.util.Date
+//import play.api.inject.guice.GuiceableModule
 
-import TestData._
-
-import play.api.inject.guice.GuiceableModule
+import test.TestData._
 
 class ApiSpec
     extends MediaAtomSuite[Api]
@@ -36,23 +33,10 @@ class ApiSpec
     with MockitoSugar
     with MediaAtomImplicits {
 
-  def initialDataStore = new MemoryStore(Map("1" -> testAtom))
-
   val youtubeId  =  "7H9Z4sn8csA"
   val youtubeUrl = s"https://www.youtube.com/watch?v=${youtubeId}"
 
-  def testUser: AuthenticatedUser = AuthenticatedUser(
-    user = User("Homer", "Simpson", "homer.simpson@guardian.co.uk", None),
-    authenticatingSystem = "test",
-    authenticatedIn = Set("test"),
-    expires = new Date().getTime + oneHour,
-    multiFactor = true
-  )
-
   def api(implicit fix: FixtureData): Api = fix.param
-
-  def requestWithCookies(api: Api) =
-    FakeRequest().withCookies(api.authActions.generateCookies(testUser): _*)
 
   "api" should {
     "return a media atom" in atomTest() { implicit f =>

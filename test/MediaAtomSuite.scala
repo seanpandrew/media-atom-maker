@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule
 import controllers.ReindexController
 import javax.inject.Provider
 import org.scalatest.{ TestData => ScalaTestTestData, WordSpec }
+import play.api.test.FakeRequest
 import play.api.{ Application, Configuration }
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
@@ -22,14 +23,21 @@ import play.api.inject.Injector
 import play.api.inject.guice.{ GuiceableModule, GuiceableModuleConversions }
 import scala.reflect.ClassTag
 
+import TestData._
+
 class MediaAtomSuite[F : ClassTag] extends WordSpec
 //    with OneAppPerTest
     with GuiceableModuleConversions {
 
   type FixtureParam = F
 
+  def initialDataStore = new MemoryStore(Map("1" -> testAtom))
+
   def defaultOverrides: Seq[GuiceableModule] =
     Seq(bind[AuthActions] to classOf[TestPandaAuth])
+
+  def requestWithCookies(api: Api) =
+    FakeRequest().withCookies(api.authActions.generateCookies(testUser): _*)
 
   trait FixtureData {
     /* Read a value from the app's injector.
@@ -44,7 +52,9 @@ class MediaAtomSuite[F : ClassTag] extends WordSpec
     val param: FixtureParam
   }
 
-  def atomTest(customOverrides: GuiceableModule*)(block: FixtureData => Unit) = {
+  def atomTest(
+    dataStore: DataStore = initialDataStore
+  )(block: FixtureData => Unit) = {
     val data = new FixtureData {
       override def overrides = super.overrides ++ customOverrides
       val param = app.injector.instanceOf[FixtureParam]
@@ -106,7 +116,5 @@ class MediaAtomSuite[F : ClassTag] extends WordSpec
 
   implicit def app(implicit fix: FixtureData) = fix.app
   implicit def mat(implicit fix: FixtureData) = app.materializer
-
-  val oneHour = 3600000L
 
 }
