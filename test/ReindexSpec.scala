@@ -27,57 +27,22 @@ class ReindexSpec
 
   override def initialDataStore = new MemoryStore(testAtoms)
 
-  // override def defaultOverrides =
-  //   super.defaultOverrides ++ Seq[GuiceableModule](
-  //     bind[DataStore] toInstance initialDataStore,
-  //     bind[AtomReindexer] toInstance mock[AtomReindexer]
-  //   )
-
-  // def withReindexer(publisher: AtomReindexer = defaultReindexer)(f: ReindexController => Unit) =
-  //   f(guicer
-  //       .overrides(bind(classOf[AtomReindexer])
-  //                    .toInstance(publisher))
-  //       .injector
-  //       .instanceOf(classOf[controllers.ReindexController]))
-
-  // def reindexTest(
-  //   reindexer: AtomReindexer = mock[AtomReindexer],
-  //   dataStore: DataStore = initialDataStore
-  // ) = injectedTest(
-  //   bind[AtomReindexer] toInstance reindexer,
-  //   bind[DataStore] toInstance dataStore
-  // ) _
-
-  def reindexPublisher(implicit fix: FixtureData) = fix.iget[AtomReindexer]
-  def reindexer(implicit fix: FixtureData) = fix.param
-
   "reindexer" should {
-    "return error if publisher fails" in atomTest() { implicit fix =>
-      val pub = reindexPublisher
-      when(pub.reindexAtoms(any())).thenReturn(Failure(new Exception("forced failure")))
-      val res = call(reindexer.reindexLive(None, None), FakeRequest())
+    "return error if publisher fails" in atomTest { implicit f =>
+      when(reindexPublisher.reindexAtoms(any())).thenReturn(Failure(new Exception("forced failure")))
+      val res = call(reindexCtrl.reindexLive(None, None), FakeRequest())
       status(res) mustEqual INTERNAL_SERVER_ERROR
       contentAsJson(res) mustEqual JsObject("error" -> JsString("forced failure") :: Nil)
     }
 
-    "call publisher with atoms in dataStore" in atomTest() { implicit fix =>
-        val pub = reindexPublisher
-        when(pub.reindexAtoms(any()))
-          .thenReturn(Success(testAtoms.values.size.toLong))
-        val res = call(reindexer.reindexLive(None, None), FakeRequest())
-        status(res) mustEqual OK
-        val cap = ArgumentCaptor.forClass(classOf[TraversableOnce[Atom]])
-        verify(pub).reindexAtoms(cap.capture())
-        cap.getValue().toList must contain theSameElementsAs(testAtoms.values)
-      }
+    "call publisher with atoms in dataStore" in atomTest { implicit fix =>
+      when(reindexPublisher.reindexAtoms(any()))
+        .thenReturn(Success(testAtoms.values.size.toLong))
+      val res = call(reindexCtrl.reindexLive(None, None), FakeRequest())
+      status(res) mustEqual OK
+      val cap = ArgumentCaptor.forClass(classOf[TraversableOnce[Atom]])
+      verify(reindexPublisher).reindexAtoms(cap.capture())
+      cap.getValue().toList must contain theSameElementsAs(testAtoms.values)
     }
-
-  //     testAtoms.values foreach { atom =>
-  //       val req = FakeRequest()
-  //       val res = call(reindexer.reindexLive(None, None), req)
-  //       status(res) mustEqual OK
-  //       verify(reindexKinesisMock).reindexAtoms(any())
-  //     }
-  //   }
-  // }
+  }
 }

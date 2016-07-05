@@ -37,6 +37,7 @@ class MediaAtomSuite[F : ClassTag] extends WordSpec
     with GuiceableModuleConversions {
 
   def initialDataStore = new MemoryStore(Map("1" -> testAtom))
+
   def defaultPublisher: AtomPublisher = {
     val p = mock[AtomPublisher]
     when(p.publishAtomEvent(any())).thenReturn(Success(()))
@@ -48,6 +49,8 @@ class MediaAtomSuite[F : ClassTag] extends WordSpec
     when(p.publishAtomEvent(any())).thenReturn(Failure(new Exception("failure")))
     p
   }
+
+  def defaultReindexer: AtomReindexer = mock[AtomReindexer]
 
   class AtomTest(conf: AtomTestConfig) {
     def withDataStore(ds: DataStore) = new AtomTest(conf.copy(dataStore = ds))
@@ -65,26 +68,32 @@ class MediaAtomSuite[F : ClassTag] extends WordSpec
 
   case class AtomTestConfig(
     dataStore: DataStore = initialDataStore,
-    publisher: AtomPublisher = defaultPublisher
+    publisher: AtomPublisher = defaultPublisher,
+    reindexer: AtomReindexer = defaultReindexer
   ) {
     // needs to be lazy because it depends on other vals
     lazy val guice = new GuiceApplicationBuilder()
       .overrides(ibind(dataStore),
                  ibind(publisher),
+                 ibind(defaultReindexer),
                  bind[AuthActions] to classOf[TestPandaAuth])
     lazy val app = guice.build()
 
     def iget[A : ClassTag] = app.injector.instanceOf[A]
 
     lazy val api = iget[Api]
-    lazy val reindexer = iget[ReindexController]
+    lazy val reindexCtrl = iget[ReindexController]
     lazy val authActions = iget[AuthActions]
+    lazy val reindexPublisher = iget[AtomReindexer]
   }
 
   /* some shortcuts to commonly accessed members of AtomTestConfig */
   def api(implicit conf: AtomTestConfig) = conf.api
+  def reindexer(implicit conf: AtomTestConfig) = conf.reindexer
   def dataStore(implicit conf: AtomTestConfig) = conf.dataStore
   def publisher(implicit conf: AtomTestConfig) = conf.publisher
+  def reindexPublisher(implicit conf: AtomTestConfig) = conf.reindexPublisher
+  def reindexCtrl(implicit conf: AtomTestConfig) = conf.reindexCtrl
 
   def requestWithCookies(implicit conf: AtomTestConfig) =
     FakeRequest().withCookies(conf.authActions.generateCookies(testUser): _*)
