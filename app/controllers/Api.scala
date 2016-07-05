@@ -81,7 +81,7 @@ class Api @Inject() (val dataStore: DataStore,
       case Some(atom) =>
         val event = ContentAtomEvent(atom, EventType.Update, now())
         publisher.publishAtomEvent(event) match {
-          case Success(_)  => NoContent
+          case Success(_)   => NoContent
           case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
         }
       case None => NotFound(jsonError(s"No such atom $atomId"))

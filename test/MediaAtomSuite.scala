@@ -1,5 +1,7 @@
 package test
 
+import data.AtomPublisher
+import org.scalatest.mock.MockitoSugar
 import com.google.inject.AbstractModule
 import controllers.ReindexController
 import javax.inject.Provider
@@ -8,6 +10,8 @@ import play.api.test.FakeRequest
 import play.api.{ Application, Configuration }
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
+
+import scala.util.{ Success, Failure }
 
 import org.scalatestplus.play.{ PlaySpec, OneAppPerTest }
 
@@ -23,98 +27,69 @@ import play.api.inject.Injector
 import play.api.inject.guice.{ GuiceableModule, GuiceableModuleConversions }
 import scala.reflect.ClassTag
 
+import org.mockito.Mockito._
+import org.mockito.Matchers._
+
 import TestData._
 
 class MediaAtomSuite[F : ClassTag] extends WordSpec
-//    with OneAppPerTest
+    with MockitoSugar
     with GuiceableModuleConversions {
 
-  type FixtureParam = F
-
   def initialDataStore = new MemoryStore(Map("1" -> testAtom))
-
-  def defaultOverrides: Seq[GuiceableModule] =
-    Seq(bind[AuthActions] to classOf[TestPandaAuth])
-
-  def requestWithCookies(api: Api) =
-    FakeRequest().withCookies(api.authActions.generateCookies(testUser): _*)
-
-  trait FixtureData {
-    /* Read a value from the app's injector.
-     *
-     * NOTE that because of the way injection works, unless the class A
-     * is marked as singleton, then each time you call this you will
-     * generate a new instance of A */
-    def iget[A : ClassTag]: A = app.injector.instanceOf[A]
-    def overrides: Seq[GuiceableModule] = defaultOverrides
-    lazy val guice = new GuiceApplicationBuilder().overrides(overrides: _*)
-    implicit lazy val app = guice.build()
-    val param: FixtureParam
+  def defaultPublisher: AtomPublisher = {
+    val p = mock[AtomPublisher]
+    when(p.publishAtomEvent(any())).thenReturn(Success(()))
+    p
   }
 
-  def atomTest(
-    dataStore: DataStore = initialDataStore
-  )(block: FixtureData => Unit) = {
-    val data = new FixtureData {
-      override def overrides = super.overrides ++ customOverrides
-      val param = app.injector.instanceOf[FixtureParam]
-    }
-    try {
-      block(data)
-    } finally {
-      // shutdown Panda Auth agents
-      data.iget[AuthActions].shutdown
-    }
+  def failingMockPublisher: AtomPublisher = {
+    val p = mock[AtomPublisher]
+    when(p.publishAtomEvent(any())).thenReturn(Failure(new Exception("failure")))
+    p
   }
 
-  def atomTest(ds: DataStore)(block: FixtureData => Unit): Unit =
-    atomTest(bind[DataStore] toInstance ds)(block)
+  class AtomTest(conf: AtomTestConfig) {
+    def withDataStore(ds: DataStore) = new AtomTest(conf.copy(dataStore = ds))
+    def withPublisher(pub: AtomPublisher) = new AtomTest(conf.copy(publisher = pub))
+    def apply(block: AtomTestConfig => Unit) =
+      try { block(conf) } finally {
+        conf.authActions.shutdown
+        conf.authActions.wsClient.close // probably panda auth should be shutting this down, but until then...
+      }
+  }
 
-  /**
-    * This trait provides one app, and one Guice module per test. The
-    * Guice module will be built from the components returned by the
-    * default* methods, which can be overridden to customise in your
-    * suite.
-    */
+  def atomTest = new AtomTest(new AtomTestConfig)
 
-  /*
-   * Create a new application instance: overridden from OneAppPerTest
-   * trait and will be called by code in that trait before each test.
-   */
-  //override def newAppForTest(testData: ScalaTestTestData): Application = newGuiceForTest.build()
+  private def ibind[A : ClassTag](a: A) = bind[A] toInstance a
 
-  /**
-    * override this to customise; e.g. to add to the existing bindings:
-    * 
-    *    override def newGuiceForTest = super.newGuiceForTest.bindings(...)
-    */
-  def newGuiceForTest = new GuiceApplicationBuilder()
-    .overrides(bind[AuthActions] to classOf[TestPandaAuth])
+  case class AtomTestConfig(
+    dataStore: DataStore = initialDataStore,
+    publisher: AtomPublisher = defaultPublisher
+  ) {
+    // needs to be lazy because it depends on other vals
+    lazy val guice = new GuiceApplicationBuilder()
+      .overrides(ibind(dataStore),
+                 ibind(publisher),
+                 bind[AuthActions] to classOf[TestPandaAuth])
+    lazy val app = guice.build()
 
-  // /**
-  //   * Cannot find a way to use `withFixture` and `OneArgTest` here,
-  //   * because of an ordering issue: in order to create the
-  //   * application, which is a requirement for injecting the fixture,
-  //   * we need to call `super.withFixture()`, but that will trigger
-  //   * running the test, meaning that by then it is too late.
-  //   */
+    def iget[A : ClassTag] = app.injector.instanceOf[A]
 
-  // override def withFixture(test: OneArgTest) = try {
-  //   super.withFixture(
-  //     new NoArgTest {
-  //       def apply() = test(iget[FixtureParam])
-  //       val configMap = test.configMap
-  //       val name: String = test.name
-  //       val scopes = test.scopes
-  //       val tags = test.tags
-  //       val text = test.text
-  //     }
-  //   )
-  // } finally {
-  //   iget[AuthActions].shutdown
-  // }
+    lazy val api = iget[Api]
+    lazy val reindexer = iget[ReindexController]
+    lazy val authActions = iget[AuthActions]
+  }
 
-  implicit def app(implicit fix: FixtureData) = fix.app
-  implicit def mat(implicit fix: FixtureData) = app.materializer
+  /* some shortcuts to commonly accessed members of AtomTestConfig */
+  def api(implicit conf: AtomTestConfig) = conf.api
+  def dataStore(implicit conf: AtomTestConfig) = conf.dataStore
+  def publisher(implicit conf: AtomTestConfig) = conf.publisher
+
+  def requestWithCookies(implicit conf: AtomTestConfig) =
+    FakeRequest().withCookies(conf.authActions.generateCookies(testUser): _*)
+
+  implicit def app(implicit conf: AtomTestConfig) = conf.app
+  implicit def mat(implicit conf: AtomTestConfig) = app.materializer
 
 }
