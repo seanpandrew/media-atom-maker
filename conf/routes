@@ -1,20 +1,20 @@
-GET     /healthcheck                    controllers.MainApp.healthcheck()
-GET     /oauthCallback                  controllers.MainApp.oauthCallback()
-GET     /atom/:id                       controllers.MainApp.getAtom(id)
-GET     /atoms                          controllers.MainApp.listAtoms()
+# GET     /healthcheck                    controllers.MainApp.healthcheck()
+# GET     /oauthCallback                  controllers.MainApp.oauthCallback()
+# GET     /atom/:id                       controllers.MainApp.getAtom(id)
+# GET     /atoms                          controllers.MainApp.listAtoms()
 
-GET     /api/atoms                      controllers.Api.listAtoms()
-GET     /api/atom/:id                   controllers.Api.getMediaAtom(id)
-POST    /api/atom                       controllers.Api.createMediaAtom()
-POST    /api/atom/:id/asset             controllers.Api.addAsset(id)
-POST    /api/atom/:id/revert/:version   controllers.Api.revertAtom(id, version: Long)
+# GET     /api/atoms                      controllers.Api.listAtoms()
+# GET     /api/atom/:id                   controllers.Api.getMediaAtom(id)
+# POST    /api/atom                       controllers.Api.createMediaAtom()
+# POST    /api/atom/:id/asset             controllers.Api.addAsset(id)
+# POST    /api/atom/:id/revert/:version   controllers.Api.revertAtom(id, version: Long)
 
-POST    /api/atom/:id/publish           controllers.Api.publishAtom(id)
+# POST    /api/atom/:id/publish           controllers.Api.publishAtom(id)
 
-# reindex endpoints
-#POST    /api/reindex                   controllers.ReindexController.reindexLive()
-GET     /api/reindexStart               controllers.ReindexController.reindexStart(from: Option[Long], to: Option[Long])
-GET     /api/reindexStatus/:id          controllers.ReindexController.reindexStatus(id: String)
+# # reindex endpoints
+# #POST    /api/reindex                   controllers.ReindexController.reindexLive()
+# GET     /api/reindexStart               controllers.ReindexController.reindexStart(from: Option[Long], to: Option[Long])
+# GET     /api/reindexStatus/:id          controllers.ReindexController.reindexStatus(id: String)
 
-#static assets
-GET  /assets/*file                      controllers.Assets.at(path="/public", file)
+# #static assets
+# GET  /assets/*file                      controllers.Assets.at(path="/public", file)

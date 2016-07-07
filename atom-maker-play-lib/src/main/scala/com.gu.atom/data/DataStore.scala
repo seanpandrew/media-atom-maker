@@ -1,4 +1,4 @@
-package data
+package com.gu.atom.data
 
 import cats.data.Xor
 import com.google.inject.ImplementedBy
@@ -18,8 +18,6 @@ case class VersionConflictError(requestVer: Long)
 
 case class Query(from: Option[Date], to: Option[Date])
 
-//@ImplementedBy(classOf[MemoryStore])
-@ImplementedBy(classOf[DynamoDataStore])
 trait DataStore {
 
   type DataStoreResult[R] = Xor[DataStoreError, R]
