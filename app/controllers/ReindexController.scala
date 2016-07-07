@@ -6,7 +6,7 @@ import com.gu.pandomainauth.action.AuthActions
 import data._
 
 import javax.inject.{ Inject, Named }
-import play.api.libs.json.{ Json, JsObject, JsNumber, JsString }
+import play.api.libs.json.{ JsNumber, JsObject, JsString, JsValue, Json }
 import play.api.mvc.Action
 
 import scala.concurrent.Future
@@ -38,9 +38,10 @@ class ReindexController @Inject() (
       }
     }
 
-  def reindexStatus(id: Int) = Action.async { implicit req =>
-    (reindexManager ? GetStatus(Some(id))) map {
+  def reindexStatus(id: String) = Action.async { implicit req =>
+    (reindexManager ? GetStatus(id)) map {
       case job: ReindexJob => Ok(Json.toJson(job))
+      case err: JsValue => Ok(err)
     }
   }
 }

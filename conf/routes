@@ -14,7 +14,7 @@ POST    /api/atom/:id/publish           controllers.Api.publishAtom(id)
 # reindex endpoints
 #POST    /api/reindex                   controllers.ReindexController.reindexLive()
 GET     /api/reindexStart               controllers.ReindexController.reindexStart(from: Option[Long], to: Option[Long])
-GET     /api/reindexStatus/:id          controllers.ReindexController.reindexStatus(id: Int)
+GET     /api/reindexStatus/:id          controllers.ReindexController.reindexStatus(id: String)
 
 #static assets
 GET  /assets/*file                      controllers.Assets.at(path="/public", file)
