@@ -14,10 +14,12 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.ws.WSClient
 import play.api.Logger
 
-class MainApp @Inject() (dataStore: DataStore,
-                         val wsClient: WSClient,
-                         val conf: Configuration,
-                         val authActions: AuthActions)
+class MainApp @Inject() (
+  dataStore: DataStore,
+  val wsClient: WSClient,
+  val conf: Configuration,
+  val authActions: AuthActions
+)
     extends AtomController {
 
   import authActions.{ AuthAction, processGoogleCallback }

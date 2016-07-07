@@ -20,7 +20,7 @@ class MemoryStore extends DataStore
   def getMediaAtom(id: String) = dataStore.get(id)
 
   def createMediaAtom(atom: Atom) = dataStore.synchronized {
-    if(dataStore.get(atom.id).isDefined) {
+    if (dataStore.get(atom.id).isDefined) {
       fail(IDConflictError)
     } else {
       succeed(dataStore(atom.id) = atom)
@@ -30,8 +30,8 @@ class MemoryStore extends DataStore
   def updateMediaAtom(newAtom: Atom) = dataStore.synchronized {
     getMediaAtom(newAtom.id) match {
       case Some(oldAtom) =>
-        if(oldAtom.contentChangeDetails.revision >=
-             newAtom.contentChangeDetails.revision) {
+        if (oldAtom.contentChangeDetails.revision >=
+          newAtom.contentChangeDetails.revision) {
           fail(VersionConflictError(newAtom.tdata.activeVersion))
         } else {
           succeed(dataStore(newAtom.id) = newAtom)

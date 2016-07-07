@@ -13,7 +13,7 @@ import play.api.libs.ws.WSClient
 
 @Singleton
 class PanDomainAuthActions @Inject() (
-  val wsClient:WSClient, val conf: Configuration
+    val wsClient: WSClient, val conf: Configuration
 ) extends AuthActions {
 
   override lazy val awsCredentialsProvider: AWSCredentialsProvider =
@@ -24,7 +24,7 @@ class PanDomainAuthActions @Inject() (
 
   override def validateUser(authedUser: AuthenticatedUser): Boolean = {
     (authedUser.user.emailDomain == "guardian.co.uk") &&
-    (authedUser.multiFactor)
+      (authedUser.multiFactor)
   }
 
   override def authCallbackUrl: String = "https://" + conf.getString("host").get + "/oauthCallback"

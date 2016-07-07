@@ -21,14 +21,16 @@ import scala.util.{ Success, Failure }
 
 import data.JsonConversions._
 
-class Api @Inject() (val dataStore: DataStore,
-                     val publisher: AtomPublisher,
-                     val conf: Configuration,
-                     val authActions: AuthActions)
+class Api @Inject() (
+  val dataStore: DataStore,
+  val publisher: AtomPublisher,
+  val conf: Configuration,
+  val authActions: AuthActions
+)
     extends AtomController
     with MediaAtomImplicits {
 
-  import authActions.{APIAuthAction, AuthAction}
+  import authActions.{ APIAuthAction, AuthAction }
 
   private def atomUrl(id: String) = s"/atom/$id"
 
@@ -44,8 +46,9 @@ class Api @Inject() (val dataStore: DataStore,
   def createMediaAtom = thriftResultAction(atomBodyParser) { implicit req =>
     val atom = req.body
     dataStore.createMediaAtom(atom).fold(
-      { case data.IDConflictError =>
-        Conflict(s"${atom.id} already exists")
+      {
+        case data.IDConflictError =>
+          Conflict(s"${atom.id} already exists")
         case _ => InternalServerError("Unknown error")
       },
       _ => Created(Json.toJson(atom))
@@ -61,9 +64,9 @@ class Api @Inject() (val dataStore: DataStore,
         val assets = ma.assets
         val newAtom = atom
           .withData(ma.copy(
-                      activeVersion = newAsset.version,
-                      assets = newAsset +: assets
-                    ))
+            activeVersion = newAsset.version,
+            assets = newAsset +: assets
+          ))
           .withRevision(_ + 1)
 
         dataStore.updateMediaAtom(newAtom).fold(
@@ -81,7 +84,7 @@ class Api @Inject() (val dataStore: DataStore,
       case Some(atom) =>
         val event = ContentAtomEvent(atom, EventType.Update, now())
         publisher.publishAtomEvent(event) match {
-          case Success(_)   => NoContent
+          case Success(_) => NoContent
           case Failure(err) => InternalServerError(jsonError(s"could not publish: ${err.toString}"))
         }
       case None => NotFound(jsonError(s"No such atom $atomId"))
@@ -91,7 +94,7 @@ class Api @Inject() (val dataStore: DataStore,
   def revertAtom(atomId: String, version: Long) = APIAuthAction { implicit req =>
     dataStore.getMediaAtom(atomId) match {
       case Some(atom) =>
-        if(!atom.tdata.assets.exists(_.version == version)) {
+        if (!atom.tdata.assets.exists(_.version == version)) {
           InternalServerError(jsonError(s"no asset is listed for version $version"))
         } else {
           dataStore.updateMediaAtom(
@@ -108,7 +111,7 @@ class Api @Inject() (val dataStore: DataStore,
   // TODO -> this needs to handle paging
   def listAtoms = APIAuthAction { implicit req =>
     dataStore.listAtoms.fold(
-      err =>   InternalServerError(jsonError(err.msg)),
+      err => InternalServerError(jsonError(err.msg)),
       atoms => Ok(Json.toJson(atoms.toList))
     )
   }

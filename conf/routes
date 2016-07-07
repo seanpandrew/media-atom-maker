@@ -11,8 +11,10 @@ POST    /api/atom/:id/revert/:version   controllers.Api.revertAtom(id, version: 
 
 POST    /api/atom/:id/publish           controllers.Api.publishAtom(id)
 
-# REINDEX endpoints
-POST    /api/reindex                     controllers.ReindexController.reindexLive(from: Option[Long], to: Option[Long])
+# reindex endpoints
+#POST    /api/reindex                   controllers.ReindexController.reindexLive()
+GET     /api/reindexStart               controllers.ReindexController.reindexStart(from: Option[Long], to: Option[Long])
+GET     /api/reindexStatus/:id          controllers.ReindexController.reindexStatus(id: Int)
 
 #static assets
 GET  /assets/*file                      controllers.Assets.at(path="/public", file)

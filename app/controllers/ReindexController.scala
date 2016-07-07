@@ -5,34 +5,42 @@ import com.gu.contentatom.thrift.Atom
 import com.gu.pandomainauth.action.AuthActions
 import data._
 
-import javax.inject.Inject
-import play.api.libs.json.{ JsObject, JsNumber }
+import javax.inject.{ Inject, Named }
+import play.api.libs.json.{ Json, JsObject, JsNumber, JsString }
 import play.api.mvc.Action
+
+import scala.concurrent.Future
+import scala.concurrent.duration._
+
+import akka.actor.ActorRef
+import akka.util.Timeout
+import akka.pattern.ask
 
 import play.Logger
 import scala.util.{ Failure, Success }
 
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+
+import util.reindex._
+
 class ReindexController @Inject() (
-  publisher: AtomReindexer,
-  dataStore: DataStore,
-  val authActions: AuthActions
+    @Named("reindex-lifecycle-manager") reindexManager: ActorRef,
+    val authActions: AuthActions
 ) extends AtomController {
 
-  def reindexAtoms(atoms: TraversableOnce[Atom]): Xor[Throwable, Long] = {
-    publisher.reindexAtoms(atoms) match {
-      case Success(count) => Xor.Right(count)
-      case Failure(err)   => Xor.Left(err)
-    }
-  }
+  implicit val timeout = Timeout(30.seconds)
+  implicit val w = Json.writes[ReindexJob]
 
-  def reindexLive(from: Option[Long], to: Option[Long]) = Action { implicit req =>
-    val res = for {
-      atoms <- dataStore.listAtoms
-      count <- reindexAtoms(atoms)
-    } yield count
-    res.fold(
-      err   => InternalServerError(jsonError(err)),
-      count => Ok(JsObject("count" -> JsNumber(count) :: Nil))
-    )
+  def reindexStart(from: Option[Long], to: Option[Long]) =
+    Action.async { implicit req =>
+      (reindexManager ? Start(data.Query(None, None))) map {
+        case job: ReindexJob => Ok(Json.toJson(job))
+      }
+    }
+
+  def reindexStatus(id: Int) = Action.async { implicit req =>
+    (reindexManager ? GetStatus(Some(id))) map {
+      case job: ReindexJob => Ok(Json.toJson(job))
+    }
   }
 }

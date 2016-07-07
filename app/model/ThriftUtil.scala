@@ -65,9 +65,9 @@ object ThriftUtil {
   }
 
   def parseRequest(params: Map[String, Seq[String]]): ThriftResult[Atom] = {
-    val id = getSingleParam(params,"id").getOrElse(randomUUID().toString)
+    val id = getSingleParam(params, "id").getOrElse(randomUUID().toString)
 
-    for(mediaAtom <- parseMediaAtom(params).right) yield {
+    for (mediaAtom <- parseMediaAtom(params).right) yield {
       Atom(
         id = id,
         atomType = AtomType.Media,

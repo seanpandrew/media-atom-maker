@@ -11,19 +11,19 @@ object JsonConversions {
 
   implicit val mediaAsset = (
     (__ \ "id").write[String] and
-      (__ \ "version").write[Long] and
-      (__ \ "platform").write[String] and
-      (__ \ "assetType").write[String]
+    (__ \ "version").write[Long] and
+    (__ \ "platform").write[String] and
+    (__ \ "assetType").write[String]
   ) { asset: Asset =>
-    asset match { case Asset(assetType, version, id, platform) => (id, version, platform.name, assetType.name) }
-  }
+      asset match { case Asset(assetType, version, id, platform) => (id, version, platform.name, assetType.name) }
+    }
 
   implicit val atomDataMedia = (
     (__ \ "assets").write[Seq[Asset]] and
-      (__ \ "activeVersion").write[Long]
+    (__ \ "activeVersion").write[Long]
   ) { mediaAtom: MediaAtom =>
-    (mediaAtom.assets, mediaAtom.activeVersion)
-  }
+      (mediaAtom.assets, mediaAtom.activeVersion)
+    }
 
   implicit val atomData = Writes[AtomData] {
     case AtomData.Media(mediaAtom) => Json.toJson(mediaAtom)
@@ -32,18 +32,17 @@ object JsonConversions {
 
   implicit val atomWrites = (
     (__ \ "id").write[String] and
-      (__ \ "type").write[AtomType] and
-      (__ \ "labels").write[Seq[String]] and
-      (__ \ "defaultHtml").write[String] and
-      (__ \ "data").write[AtomData]
+    (__ \ "type").write[AtomType] and
+    (__ \ "labels").write[Seq[String]] and
+    (__ \ "defaultHtml").write[String] and
+    (__ \ "data").write[AtomData]
   ) { atom: Atom =>
-    (atom.id, atom.atomType, atom.labels, atom.defaultHtml, atom.data)
-  }
+      (atom.id, atom.atomType, atom.labels, atom.defaultHtml, atom.data)
+    }
   // implicit val atomWrites = (
   //   (__ \ "id").write[String] and
   //     (__ \ "atomType").write[String] and
   //     (__ \ "labels").write[Seq[String]] and
   // )
 
-  
 }

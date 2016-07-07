@@ -53,8 +53,8 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
     DynamoFormat.xmap(rowToAtom _)(AtomRow.apply _)(DynamoFormat[AtomRow]) // <- just saving a new implicit here
 
   // useful shortcuts
-  private val get  = Scanamo.get[Atom](dynamo)(tableName) _
-  private val put  = Scanamo.put[Atom ](dynamo)(tableName) _
+  private val get = Scanamo.get[Atom](dynamo)(tableName) _
+  private val put = Scanamo.put[Atom](dynamo)(tableName) _
 
   // this should probably return an Either so we can report an error,
   // e.g. if the atom exists, but it can't be deseralised
@@ -64,7 +64,7 @@ class DynamoDataStore(dynamo: AmazonDynamoDBClient, tableName: String)
   }
 
   def createMediaAtom(atom: Atom) =
-    if(get(UniqueKey(KeyEquals('id, atom.id))).isDefined)
+    if (get(UniqueKey(KeyEquals('id, atom.id))).isDefined)
       fail(IDConflictError)
     else
       succeed(put(atom))

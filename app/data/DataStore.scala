@@ -4,15 +4,19 @@ import cats.data.Xor
 import com.google.inject.ImplementedBy
 import com.gu.contentatom.thrift.Atom
 
+import java.util.Date
+
 sealed abstract class DataStoreError(val msg: String) extends Exception(msg)
 
 case object IDConflictError extends DataStoreError("Atom ID already exists")
 case object IDNotFound extends DataStoreError("Atom ID not in datastore")
 case object ReadError extends DataStoreError("Read error")
 
-case class  DataError(info: String) extends DataStoreError(info)
-case class  VersionConflictError(requestVer: Long)
-    extends DataStoreError(s"Update has version $requestVer, which is earlier or equal to data store version")
+case class DataError(info: String) extends DataStoreError(info)
+case class VersionConflictError(requestVer: Long)
+  extends DataStoreError(s"Update has version $requestVer, which is earlier or equal to data store version")
+
+case class Query(from: Option[Date], to: Option[Date])
 
 //@ImplementedBy(classOf[MemoryStore])
 @ImplementedBy(classOf[DynamoDataStore])
@@ -33,5 +37,7 @@ trait DataStore {
   def updateMediaAtom(newAtom: Atom): DataStoreResult[Unit]
 
   def listAtoms: DataStoreResult[TraversableOnce[Atom]]
+
+  def findAtoms(q: Query) = listAtoms // XXX -- not currently supported
 
 }

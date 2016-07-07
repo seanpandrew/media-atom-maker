@@ -8,7 +8,7 @@ import javax.inject.{ Inject, Singleton }
 import play.api.Configuration
 import scala.util.{ Success, Failure, Try }
 
-class KinesisAtomPublisher (val streamName: String, val kinesis: AmazonKinesisClient)
+class KinesisAtomPublisher(val streamName: String, val kinesis: AmazonKinesisClient)
     extends AtomPublisher
     with ThriftSerializer[ContentAtomEvent]
     with com.typesafe.scalalogging.LazyLogging {
@@ -20,12 +20,12 @@ class KinesisAtomPublisher (val streamName: String, val kinesis: AmazonKinesisCl
   def makeParititionKey(event: ContentAtomEvent): String = event.atom.atomType.name
 
   def publishAtomEvent(event: ContentAtomEvent): Try[Unit] = Try {
-      val data = serializeEvent(event)
-      kinesis.putRecord(streamName, data, makeParititionKey(event))
-    }
+    val data = serializeEvent(event)
+    kinesis.putRecord(streamName, data, makeParititionKey(event))
+  }
 }
 
-class KinesisAtomReindexer (streamName: String, kinesis: AmazonKinesisClient)
+class KinesisAtomReindexer(streamName: String, kinesis: AmazonKinesisClient)
     extends KinesisAtomPublisher(streamName, kinesis)
     with AtomReindexer {
   @Inject() def this(awsConfig: util.AWSConfig) =

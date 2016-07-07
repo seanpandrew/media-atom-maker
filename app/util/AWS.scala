@@ -1,13 +1,12 @@
 package util
 
-import com.amazonaws.regions.{Region, Regions}
+import com.amazonaws.regions.{ Region, Regions }
 import com.amazonaws.services.kinesis.AmazonKinesisClient
 import play.api.Configuration
 import javax.inject.{ Singleton, Inject }
 import com.amazonaws.auth.{ AWSCredentialsProviderChain, InstanceProfileCredentialsProvider }
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient 
-
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 
 @Singleton
 class AWSConfig @Inject() (config: Configuration) {

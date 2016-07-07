@@ -15,8 +15,7 @@ trait AtomController extends Controller {
    * with the error. Otherwise delegate to `success`, which can avoid
    * error checking and deal with the thrift object directly. */
 
-  def thriftResultAction[A](bodyParser: BodyParser[ThriftResult[A]])(success: Request[A] => Result):
-      Action[ThriftResult[A]] =
+  def thriftResultAction[A](bodyParser: BodyParser[ThriftResult[A]])(success: Request[A] => Result): Action[ThriftResult[A]] =
     authActions.APIAuthAction(bodyParser) { implicit req =>
       req.body match {
         case Right(data) => success(Request(req, data)) // create new request with parsed body
@@ -24,6 +23,6 @@ trait AtomController extends Controller {
       }
     }
 
-  def jsonError(msg: String):   JsObject = JsObject(Seq("error" -> JsString(msg)))
+  def jsonError(msg: String): JsObject = JsObject(Seq("error" -> JsString(msg)))
   def jsonError(ex: Throwable): JsObject = jsonError(ex.getMessage)
 }
