@@ -19,34 +19,40 @@ import DynamoFormat._
 
 trait AtomDynamoFormats[A] {
 
-  def fromAtomData: PartialFunction[AtomData, A]
+  def fromAtomData: PartialFunction[AtomData, A] = AtomDynamoFormatsMacros.fromAtomData
+
   def toAtomData(a: A): AtomData
 
-  def fallback(atomData: AtomData): AttributeValue =
-    new AttributeValue().withS(s"unknown atom data type $atomData")
+  //def fallback(atomData: AtomData): AttributeValue =
 
-  implicit def atomDataDynamoFormat(
-    implicit ct: ClassTag[A], arg0: DynamoFormat[A]
-  ) =
+  implicit def atomDataDynamoFormat(implicit ct: ClassTag[A], arg0: DynamoFormat[A]) =
     new DynamoFormat[AtomData] {
       def write(atomData: AtomData): AttributeValue = {
-        val pf = fromAtomData andThen { case data: A => arg0.write(data) }
-        pf.applyOrElse(atomData, fallback _)
+        (fromAtomData andThen { case data: A => arg0.write(data) })(atomData)
       }
 
       def read(attr: AttributeValue) = arg0.read(attr) map (toAtomData _)
-
     }
+
+    // new DynamoFormat[AtomData] {
+    //   def write(atomData: AtomData): AttributeValue = {
+    //     val pf = fromAtomData andThen { case data: A => arg0.write(data) }
+    //     pf.applyOrElse(atomData, fallback _)
+    //   }
+
+    //   def read(attr: AttributeValue) = arg0.read(attr) map (toAtomData _)
+
+    // }
 }
 
-trait MediaAtomDynamoFormats extends AtomDynamoFormats[MediaAtom] {
+// trait MediaAtomDynamoFormats extends AtomDynamoFormats[MediaAtom] {
 
-  def fromAtomData = { case AtomData.Media(data) => data }
-  def toAtomData(data: MediaAtom) = AtomData.Media(data)
+//   def fromAtomData = { case AtomData.Media(data) => data }
+//   def toAtomData(data: MediaAtom) = AtomData.Media(data)
 
-}
+// }
 
-object MediaAtomDynamoFormats extends MediaAtomDynamoFormats
+//object MediaAtomDynamoFormats extends MediaAtomDynamoFormats
 
 // object AtomDynamoFormats {
 //   implicit def atomDataDynamoFormat: DynamoFormat[AtomData] =
@@ -55,6 +61,26 @@ object MediaAtomDynamoFormats extends MediaAtomDynamoFormats
 
 // class AtomDynamoFormatsMacros(val c: Context) {
 //   import c.universe._
+
+//   def fromAtomData[A : WeakTypeTag] = {
+//     val A = c.weakTypeOf[A]
+//     //val dataTerm = c.fresh("atomData")
+//     val patFound = cq"$A(data) => DynamoFormat[$A].write(data)"
+//     val patFailed =
+//       cq"""_ => new AttributeValue().withS(s"unknown atom data type")"""
+
+//     val res = q"""{ case ..${Seq(patFound, patFailed)} }"""
+//     println(showCode(res))
+//     res
+//   }
+
+//   def atomData[A : WeakTypeTag] = {
+//     q"""new DynamoFormat[AtomData] {
+// def write(atomData: AtomData): AttributeValue = ${fromAtomData[A]}
+// def read(av: _root_.com.amazonaws.services.dynamodbv2.model.AttributeValue) = ???
+// }"""
+//   }
+// }
 
 //   def atomData = {
 //     val atomDataTpe = c.weakTypeOf[AtomData].typeSymbol.asClass
