@@ -17,7 +17,7 @@ import AtomData._
 
 import com.gu.atom.data._
 
-abstract class DynamoDataStore[D : ClassTag : DynamoFormat]
+class DynamoDataStore[D : ClassTag : DynamoFormat]
   (dynamo: AmazonDynamoDBClient, tableName: String)
     extends DataStore
     with AtomDynamoFormats[D] {

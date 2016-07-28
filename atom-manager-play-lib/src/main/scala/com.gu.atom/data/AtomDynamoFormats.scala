@@ -17,23 +17,21 @@ import cats.data.Xor
 import ScroogeDynamoFormat._
 import DynamoFormat._
 
-trait AtomDynamoFormats {
+trait AtomDynamoFormats[A] {
 
-  type AtomDataType
+  implicit val can = AtomDynamoFormatsMacros.atomDataSubType[A]
 
-  def fromAtomData: PartialFunction[AtomData, AtomDataType] = AtomDynamoFormatsMacros.fromAtomData[AtomDataType]
-
-  def toAtomData(a: AtomDataType): AtomData
-
-  //def fallback(atomData: AtomData): AttributeValue =
-
-  implicit def atomDataDynamoFormat(implicit ct: ClassTag[AtomDataType], arg0: DynamoFormat[AtomDataType]) =
+  implicit def atomDataDynamoFormat(
+    implicit classTag: ClassTag[A],
+    dynamoFormat: DynamoFormat[A],
+    canBeAtomData: CanBeAtomData[A]
+  ) =
     new DynamoFormat[AtomData] {
       def write(atomData: AtomData): AttributeValue = {
-        (fromAtomData andThen { case data: AtomDataType => arg0.write(data) })(atomData)
+        (canBeAtomData.fromAtomData andThen { case data: A => dynamoFormat.write(data) })(atomData)
       }
 
-      def read(attr: AttributeValue) = arg0.read(attr) map (toAtomData _)
+      def read(attr: AttributeValue) = dynamoFormat.read(attr) map (canBeAtomData.toAtomData _)
     }
 
     // new DynamoFormat[AtomData] {
