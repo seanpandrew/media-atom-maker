@@ -17,13 +17,14 @@ import AtomData._
 
 import com.gu.atom.data._
 
-class DynamoDataStore[D : ClassTag : DynamoFormat]
+class DynamoDataStore[C <: AtomData : ClassTag, E : ClassTag : DynamoFormat]
   (dynamo: AmazonDynamoDBClient, tableName: String)
-    extends DataStore
-    with AtomDynamoFormats[D] {
+    extends DataStore {
 
   sealed trait DynamoResult
   implicit class DynamoPutResult(res: PutItemResult) extends DynamoResult
+
+  import AtomDynamoFormatsMacros._
 
 //implicit val fmt = DynamoFormat[Seq[com.gu.contentatom.thrift.atom.media.Asset]]
 

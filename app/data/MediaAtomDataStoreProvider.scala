@@ -14,5 +14,5 @@ import DynamoFormat._
 
 class MediaAtomDataStoreProvider @Inject() (awsConfig: AWSConfig)
     extends Provider[DataStore] {
-  def get = new DynamoDataStore[MediaAtom](awsConfig.dynamoDB, awsConfig.dynamoTableName)
+  def get = new DynamoDataStore[AtomData.Media, MediaAtom](awsConfig.dynamoDB, awsConfig.dynamoTableName)
 }

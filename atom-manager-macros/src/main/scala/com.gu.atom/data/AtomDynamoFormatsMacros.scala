@@ -7,18 +7,44 @@ import com.gu.contentatom.thrift.AtomData
 
 /* typeclass that says that a given type is connected with a subclass
  * of AtomData, and can be converted back and forth there from */
-trait CanBeAtomData[A] {
-  def fromAtomData: PartialFunction[AtomData, A]
-  def toAtomData(a: A): AtomData
+trait CanBeAtomData[C <: AtomData, E] {
+  def fromAtomData: PartialFunction[AtomData, E]
+  def toAtomData(a: E): C
 }
 
 object AtomDynamoFormatsMacros {
-  /* defines that type A is an atom data sub type by materialising a CanBeAtomData typecalss instance */
-  implicit def atomDataSubType[A]: CanBeAtomData[A] = macro AtomDynamoFormatsMacrosImpl.canBeAtomDataMaterializer[A]
+  /* Defines that type A is an atom data sub type by materialising a CanBeAtomData typecalss instance */
+  implicit def atomDataSubType[C <: AtomData, E]: CanBeAtomData[C, E] =
+    macro AtomDynamoFormatsMacrosImpl.canBeAtomDataMaterializer[C, E]
+
+  implicit def atomDataFormats: DynamoFormat[AtomData] = macro AtomDynamoFormatsMacrosImpl.atomDataFormats
+
 }
 
 class AtomDynamoFormatsMacrosImpl(val c: Context) {
   import c.universe._
+
+  def atomDataFormats = {
+    val atomDataT = weakTypeOf[AtomData].typeSymbol.asClass
+    val dataVar = c.fresh(TermName("data"))
+
+    weakTypeOf[AtomData].companion.members
+
+    val cases = atomDataT.knownDirectSubclasses.map { cl =>
+      val companion = cl.asType.toType.companion
+      val unapply = companion.member(TermName("unapply")).asMethod
+      val argType = unapply.returnType.typeArgs.head.dealias
+      cq"$dataVar: $cl => DynamoFormat[$argType].write($unapply($dataVar).get)"
+    }
+    val res = q"""new DynamoFormat[AtomData] {
+def write(ad: AtomData) = ad match { case ..${cases} }
+def read(av: AttributeValue) = ???
+}"""
+    println(
+      showCode(res)
+    )
+    res
+  }
 
   // def fromSealedToMember[A : WeakTypeTag, B : WeakTypeTag] = {
   //   val A = weakTypeOf[A]
@@ -35,13 +61,20 @@ class AtomDynamoFormatsMacrosImpl(val c: Context) {
 
   //   c.echo(NoPosition, s"[PMR] 0951 : ${cls} -> ${B}")
 
-  def canBeAtomDataMaterializer[A : WeakTypeTag] = {
-    q"???"
-  }
-  // val A = c.weakTypeOf[A]
-  // val unapply = A.companion.member(TermName("unapply"))
-  // val data = c.fresh(TermName("data"))
+  def canBeAtomDataMaterializer[C : WeakTypeTag, E : WeakTypeTag] = {
+    val containerType = c.weakTypeOf[C]
+    val elementType = c.weakTypeOf[E]
+    val companion = containerType.companion
 
+    val data = c.fresh(TermName("data"))
+
+c.echo(c.enclosingPosition, s"[PMR] 1337 : ${containerType}")
+
+q"""new CanBeAtomData[$containerType, $elementType] {
+def fromAtomData = { case c: $containerType => ??? }
+def toAtomData(a: $elementType) = ???
+}"""
+  }
 
     // val patFound = cq"$data: $A => $unapply($data)"
     // val patFailed =
