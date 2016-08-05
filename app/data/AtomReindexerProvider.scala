@@ -8,6 +8,6 @@ import util.AWSConfig
 class AtomReindexerProvider @Inject() (awsConfig: AWSConfig)
     extends Provider[AtomReindexer] {
   def get() = new KinesisAtomReindexer(
-    awsConfig.kinesisReindexStreamName, awsConfig.kinesisClient
+    awsConfig.kinesisReindex.liveStreamName, awsConfig.kinesisClient
   )
 }

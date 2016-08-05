@@ -44,7 +44,10 @@ class AWSConfig @Inject() (config: Configuration) {
   lazy val liveKinesisStreamName = config.getString("aws.kinesis.liveStreamName").get
   lazy val previewKinesisStreamName = config.getString("aws.kinesis.previewStreamName").get
 
-  lazy val kinesisReindexStreamName = config.getString("aws.kinesis.reindexStreamName").get
+  object kinesisReindex {
+    lazy val liveStreamName    = config.getString("aws.kinesis.reindex.liveStreamName").get
+    lazy val previewStreamName = config.getString("aws.kinesis.reindex.previewStreamName").get
+  }
 
   lazy val stage = config.getString("stage").getOrElse("DEV")
   lazy val readFromComposerAccount = config.getBoolean("readFromComposer").getOrElse(false)
