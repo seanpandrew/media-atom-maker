@@ -18,6 +18,7 @@ scmInfo := Some(ScmInfo(url("https://github.com/guardian/media-atom-maker"),
 dynamoDBLocalDownloadDir := file(".dynamodb-local")
 startDynamoDBLocal <<= startDynamoDBLocal.dependsOn(compile in Test)
 test in Test <<= (test in Test).dependsOn(startDynamoDBLocal)
+testOnly in Test <<= (testOnly in Test).dependsOn(startDynamoDBLocal)
 testOptions in Test <+= dynamoDBLocalTestCleanup
 
 pomExtra := (
@@ -50,13 +51,14 @@ releaseProcess := Seq[ReleaseStep](
 
 
 libraryDependencies ++= Seq(
-  "com.gu"                     %% "content-atom-model"   % contentAtomVersion,
-  "com.amazonaws"              %  "aws-java-sdk-kinesis" % awsVersion,
-  "com.typesafe.scala-logging" %% "scala-logging"        % "3.4.0",
-  "com.twitter"                %% "scrooge-serializer"   % scroogeVersion,
-  "com.twitter"                %% "scrooge-core"         % scroogeVersion,
-  "com.typesafe.akka"          %% "akka-actor"           % akkaVersion,
-  "org.mockito"                %  "mockito-core"         % mockitoVersion % "test",
-  "org.scalatest"              %% "scalatest"            % "2.2.6"     % "test",
-  "com.typesafe.akka"          %% "akka-testkit"         % akkaVersion % "test"
+  "com.gu"                     %% "content-atom-model"    % contentAtomVersion,
+  "com.amazonaws"              %  "aws-java-sdk-kinesis"  % awsVersion,
+  "com.typesafe.scala-logging" %% "scala-logging"         % "3.4.0",
+  "com.amazonaws"              %  "aws-java-sdk-dynamodb" % awsVersion,
+  "com.twitter"                %% "scrooge-serializer"    % scroogeVersion,
+  "com.twitter"                %% "scrooge-core"          % scroogeVersion,
+  "com.typesafe.akka"          %% "akka-actor"            % akkaVersion,
+  "org.mockito"                %  "mockito-core"          % mockitoVersion % "test",
+  "org.scalatest"              %% "scalatest"             % "2.2.6"        % "test",
+  "com.typesafe.akka"          %% "akka-testkit"          % akkaVersion    % "test"
 ) ++  scanamoDeps

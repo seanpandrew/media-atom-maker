@@ -10,11 +10,11 @@ import com.amazonaws.services.dynamodbv2.model._
  *    https://github.com/guardian/scanamo/blob/master/src/test/scala/com/gu/scanamo/LocalDynamoDB.scala
  */
 
-object LocalDynamoDB {
-  def client() = {
-    val c = new AmazonDynamoDBAsyncClient(new com.amazonaws.auth.BasicAWSCredentials("key", "secret"))
-    c.setEndpoint("http://localhost:8000")
-    c
+class LocalDynamoDB {
+  def dbClient = {
+    val client = new AmazonDynamoDBAsyncClient(new com.amazonaws.auth.BasicAWSCredentials("key", "secret"))
+    client.setEndpoint("http://localhost:8000")
+    client
   }
 
   def createTable(client: AmazonDynamoDB)(tableName: String)(attributes: (Symbol, ScalarAttributeType)*) = {
