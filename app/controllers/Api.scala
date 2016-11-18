@@ -13,7 +13,7 @@ import ThriftUtil._
 import play.api.Configuration
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import util.atom.MediaAtomImplicits
-import util.AWSConfig
+import util.{Paginator, AWSConfig}
 import play.api.libs.json._
 
 import com.gu.atom.play._
@@ -167,11 +167,14 @@ class Api @Inject() (val previewDataStore: PreviewDataStore,
     }
   }
 
-  // TODO -> this needs to handle paging
-  def listAtoms = APIAuthAction { implicit req =>
+  def listAtoms(pageNumber: Int, queryTerm: Option[String]) = APIAuthAction { implicit req =>
     previewDataStore.listAtoms.fold(
-      err =>   InternalServerError(jsonError(err.msg)),
-      atoms => Ok(Json.toJson(atoms.toList))
+      err => InternalServerError(jsonError(err.msg)),
+      atoms => {
+        val queryResult = queryTerm.fold(atoms)(term => atoms.filter(_.tdata.title.toLowerCase == term.toLowerCase)).toSeq
+        val page = Paginator.selectPage(queryResult, pageNumber, 10)
+        Ok(Json.toJson(page.toList))
+      }
     )
   }
 
