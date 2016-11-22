@@ -2,7 +2,7 @@ GET     /healthcheck                    controllers.MainApp.healthcheck()
 GET     /oauthCallback                  controllers.MainApp.oauthCallback()
 GET     /atoms                          controllers.MainApp.listAtoms()
 
-GET     /api/atoms                      controllers.Api.listAtoms(pageNumber: Int = 1, queryTerm: Option[String])
+GET     /api/atoms                      controllers.Api.listAtoms()
 GET     /api/atom/:id                   controllers.Api.getMediaAtom(id)
 GET     /api/published-atom/:id         controllers.Api.getPublishedMediaAtom(id)
 GET     /api/config-values              controllers.Api.getConfigValues()

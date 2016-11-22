@@ -1,4 +1,5 @@
 import VideosApi from '../../services/VideosApi';
+import capi from '../../services/capi';
 
 function requestVideos() {
   return {
@@ -32,5 +33,16 @@ export function getVideos() {
         .then(res => {
           dispatch(receiveVideos(res));
         });
+  };
+}
+
+export function searchVideosWithQuery(query) {
+  return dispatch => {
+    dispatch(requestVideos());
+    return capi.searchTerm(query)
+      .catch(error => dispatch(errorReceivingVideos(error)))
+      .then(res => {
+        dispatch(receiveVideos(res));
+      });
   };
 }

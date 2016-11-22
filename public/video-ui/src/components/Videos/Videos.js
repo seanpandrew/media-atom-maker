@@ -1,12 +1,13 @@
 import React, {PropTypes} from 'react';
 import {Link} from 'react-router';
 import VideoItem from './VideoItem';
+import {searchTerm} from '../../services/capi';
 
 class Videos extends React.Component {
 
   static propTypes = {
-    videos: PropTypes.array.isRequired,
-  }
+    videos: PropTypes.array.isRequired
+  };
 
   componentDidMount() {
     this.props.videoActions.getVideos();
@@ -23,16 +24,14 @@ class Videos extends React.Component {
     }
   }
 
-  searchFilter = (value) => {
-    const title = value.title.toLowerCase();
-    const searchTerm = this.props.searchTerm.toLowerCase();
-    return title.includes(searchTerm);
-  }
+  search = () => {
+    this.props.videoActions.searchVideosWithQuery(this.props.searchTerm);
+  };
 
   renderListItems() {
-    return (this.props.videos.filter(this.searchFilter).map((video) => <VideoItem key={video.id} video={video} />));
+    this.search();
+    return (this.props.videos.map((video) => <VideoItem key={video.id} video={video} />));
   }
-
 
   render() {
     return (
