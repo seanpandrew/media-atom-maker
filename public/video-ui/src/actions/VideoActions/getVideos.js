@@ -1,5 +1,5 @@
 import VideosApi from '../../services/VideosApi';
-import capi from '../../services/capi';
+import {searchText} from '../../services/capi';
 
 function requestVideos() {
   return {
@@ -39,10 +39,19 @@ export function getVideos() {
 export function searchVideosWithQuery(query) {
   return dispatch => {
     dispatch(requestVideos());
-    return capi.searchTerm(query)
+    return searchText(query)
       .catch(error => dispatch(errorReceivingVideos(error)))
       .then(res => {
-        dispatch(receiveVideos(res));
+        const capiAtoms = res.response.results;
+        const atoms = capiAtoms.map((capiAtom) => {
+          return {
+            id: capiAtom.id,
+            title: capiAtom.data.media.title,
+            contentChangeDetails: capiAtom.contentChangeDetails,
+            assets: capiAtom.data.media.assets
+          }
+        });
+        dispatch(receiveVideos(atoms));
       });
   };
 }
