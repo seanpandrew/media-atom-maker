@@ -6,14 +6,14 @@ export default {
 
   fetchVideos: () => {
     return pandaReqwest({
-      url: '/api2/atoms',
+      url: '/api/atoms',
       method: 'get'
     });
   },
 
   fetchVideo: (videoId) => {
     return pandaReqwest({
-      url: '/api2/atoms/' + videoId,
+      url: '/api/atoms/' + videoId,
       method: 'get',
       contentType: 'application/json'
     });
@@ -21,7 +21,7 @@ export default {
 
   createVideo: (video) => {
     return pandaReqwest({
-      url: '/api2/atoms',
+      url: '/api/atoms',
       contentType: 'application/json',
       method: 'post',
       data: JSON.stringify(video)
@@ -30,14 +30,14 @@ export default {
 
   publishVideo: (videoId) => {
     return pandaReqwest({
-      url: '/api2/atom/' + videoId + '/publish',
+      url: '/api/atom/' + videoId + '/publish',
       method: 'put'
     })
   },
 
   createAsset: (asset, videoId) => {
     return pandaReqwest({
-      url: '/api2/atoms/' + videoId + '/assets',
+      url: '/api/atoms/' + videoId + '/assets',
       contentType: 'application/json',
       method: 'post',
       data: JSON.stringify(asset)
@@ -46,7 +46,7 @@ export default {
 
   revertAsset: (atomId, videoId) => {
     return pandaReqwest({
-      url: '/api2/atom/' + atomId + '/asset-active',
+      url: '/api/atom/' + atomId + '/asset-active',
       contentType: 'application/json',
       method: 'put',
       data: JSON.stringify({youtubeId: videoId})
@@ -55,7 +55,7 @@ export default {
 
   saveVideo: (videoId, video) => {
     return pandaReqwest({
-      url: '/api2/atoms/' + videoId,
+      url: '/api/atoms/' + videoId,
       method: 'put',
       contentType: 'application/json',
       data: JSON.stringify(video)
@@ -64,7 +64,7 @@ export default {
 
   fetchAudits: (atomId) => {
     return pandaReqwest({
-      url: '/api2/audits/' + atomId,
+      url: '/api/audits/' + atomId,
       method: 'get'
     })
   },
