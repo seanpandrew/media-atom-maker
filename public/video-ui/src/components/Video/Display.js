@@ -115,7 +115,6 @@ class VideoDisplay extends React.Component {
             </div>
 
             <div className="video__detailbox">
-              <span className="video__detailbox__header">Atom Audit Trail</span>
               <VideoAuditTrail video={this.props.video || {}} audits={this.props.audits || []}/>
             </div>
           </div>

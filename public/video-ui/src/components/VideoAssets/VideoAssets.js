@@ -124,12 +124,12 @@ class VideoAssets extends React.Component {
     return (
         <div className="video-assets">
           <div className="section-header">
-            <span className="video__detailbox__header">Assets</span>
+            <h2 className="video__detailbox__header">Assets</h2>
             {!this.state.showAssetForm ? <button className="btn section-header__btn" type="button" onClick={this.showAssetForm}>Add new asset</button> : false}
           </div>
           {this.renderAssetEdit()}
           {this.renderList()}
-          {!this.props.video.assets.length ? <span>No assets found</span> : false}
+          {!this.props.video.assets.length ? <p className="baseline-margin">No assets found</p> : false}
           {!this.state.showAssetList && this.props.video.assets.length ? <button className="video-assets__show-btn" type="button" onClick={this.showAssetList}>Show all assets</button> : false}
         </div>
     )

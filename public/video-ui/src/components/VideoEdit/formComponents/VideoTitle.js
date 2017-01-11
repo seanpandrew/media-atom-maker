@@ -17,6 +17,8 @@ export default class VideoTitleEdit extends React.Component {
       return false;
     }
 
+    console.log(this.props);
+
     return (
         <TextInput
           fieldName="Title"
