@@ -17,6 +17,7 @@ export default class VideoAuditTrail extends React.Component {
       const itemTime = moment(audit.date, 'x');
 
       return (
+
         <tr key={audit.date}>
           <td>{itemTime.format('HH:mm:ss DD/MM/YYYY')}</td>
           <td>{audit.operation}</td>
@@ -24,6 +25,25 @@ export default class VideoAuditTrail extends React.Component {
           <td>{audit.user}</td>
         </tr>
       );
+  }
+
+  renderAuditTable() {
+    if(!this.props.audits.length) {
+      return <p className="baseline-margin">No audits found</p>
+    }
+    return (
+      <table className='table'>
+        <thead className='table__header'>
+        <tr className='table__header-row'>
+          <th>Date</th>
+          <th>Operation</th>
+          <th>Description</th>
+          <th>User</th>
+        </tr>
+        </thead>
+        {this.renderList()}
+      </table>
+    )
   }
 
   renderList() {
@@ -44,17 +64,9 @@ export default class VideoAuditTrail extends React.Component {
     if (this.props.audits) {
       return (
         <div>
-          <table className='table'>
-            <thead className='table__header'>
-              <tr className='table__header-row'>
-                <th>Date</th>
-                <th>Operation</th>
-                <th>Description</th>
-                <th>User</th>
-              </tr>
-            </thead>
-            {this.renderList()}
-          </table>
+          <h2 className="video__detailbox__header">Atom Audit Trail</h2>
+          {this.renderAuditTable()}
+
           {!this.state.renderAll && this.props.audits.length > 5 ? this.renderExpandButton() : false}
         </div>
       );
