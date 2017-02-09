@@ -9,40 +9,8 @@ export default class VideoPage extends React.Component {
     pageCreated: false
   }
 
-  componentDidMount() {
-    if (this.props.video) {
-      this.props.fetchUsages(this.props.video.id);
-    }
-  }
-
-  componentWillReceiveProps(newProps) {
-    const oldVideoId = this.props.video && this.props.video.id;
-    const newVideoId = newProps.video && newProps.video.id;
-
-    if (oldVideoId !== newVideoId) {
-
-      this.props.fetchUsages(newVideoId);
-    }
-  }
-
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
-  }
-
-  pageCreate = () => {
-
-    this.setState({
-      pageCreated: true
-    });
-
-    const metadata = {
-      title: this.props.video.title,
-      standfirst: this.props.video.description
-    };
-
-    const videoBlock = getVideoBlock(this.props.video.id, metadata);
-
-    return this.props.createComposerPage(this.props.video.id, metadata, this.getComposerUrl(), videoBlock);
   }
 
   renderComposerLink = (composerIdWithUsage) => {
@@ -67,13 +35,11 @@ export default class VideoPage extends React.Component {
   renderCreateButton = () => {
     if (this.props.video && isVideoPublished(this.props.publishedVideo)) {
       return (
-        <button
-          type="button"
-          className="btn page__add__button"
+        <div
           disabled={this.state.pageCreated}
           onClick={this.pageCreate}>
-          Create video page
-        </button>
+          <i className="icon icon__edit">video_call</i>
+        </div>
       );
     }
 
@@ -141,7 +107,6 @@ export default class VideoPage extends React.Component {
       if (this.noExistingComposerPages(this.props.usages.composerIdsWithUsage)) {
         return (
           <div>
-            {this.renderCreateButton()}
           <div className="baseline-margin">No usages found</div>
           </div>
         );
@@ -152,4 +117,3 @@ export default class VideoPage extends React.Component {
     return (<div>{this.renderUsages()} {this.renderComposerPages()}</div>);
   }
 }
-

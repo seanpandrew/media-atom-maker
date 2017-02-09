@@ -66,5 +66,9 @@
 $baselineMargin: 20px;
 
 .baseline-margin {
+  background-color: $color700Grey;
+  padding: 30%;
+  text-align: center;
   margin: 10px;
+  display: block;
 }

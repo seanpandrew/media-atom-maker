@@ -26,7 +26,7 @@ export default class VideoPreview extends React.Component {
 
     if (!activeAsset) {
       return (
-        <div className="video-preview__video">No Active Video</div>
+        <div className="video-preview__video baseline-margin">No Active Video</div>
       );
     }
 
