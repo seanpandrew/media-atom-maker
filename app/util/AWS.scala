@@ -81,6 +81,10 @@ class AWSConfig @Inject() (config: Configuration) {
   lazy val expiryPollerName = "Expiry"
   lazy val expiryPollerLastName = "Poller"
 
+  lazy val vidispineUrl: String = config.getString("vidispine.url").get
+  lazy val vidispineUsername: String = config.getString("vidispine.username").get
+  lazy val vidispinePassword: String = config.getString("vidispine.password").get
+
   private def getKinesisClient(credentialsProvider: AWSCredentialsProviderChain) = region.createClient(
     classOf[AmazonKinesisClient],
     credentialsProvider,

@@ -30,6 +30,8 @@ GET     /api2/audits/:id                controllers.Api2.getAuditTrailForAtomId(
 GET     /api/youtube/categories         controllers.Youtube.listCategories()
 GET     /api/youtube/channels           controllers.Youtube.listChannels()
 
+GET     /api/vidispine/version          controllers.Vidispine.version()
+
 # reindex
 
 POST    /reindex-preview                com.gu.atom.play.ReindexController.newPreviewReindexJob()
