@@ -20,6 +20,9 @@
 .video-preview {
   text-align: center;
   border-style: none;
+  background-color: $color700Grey;
+  display: flex;
+  justify-content: center;
 
   &__header {
     display: block;
