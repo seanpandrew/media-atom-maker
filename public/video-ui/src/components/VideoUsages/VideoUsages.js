@@ -31,21 +31,6 @@ export default class VideoPage extends React.Component {
     return this.props.usages && this.props.usages.usagesWithoutComposer !== undefined && this.props.usages.composerIdsWithUsage !== undefined;
   }
 
-
-  renderCreateButton = () => {
-    if (this.props.video && isVideoPublished(this.props.publishedVideo)) {
-      return (
-        <div
-          disabled={this.state.pageCreated}
-          onClick={this.pageCreate}>
-          <i className="icon icon__edit">video_call</i>
-        </div>
-      );
-    }
-
-    return (<div>Publish this atom to enable the creation of composer pages</div>);
-  }
-
   renderComposerPages = () => {
 
     //If composerId exists, this means that this is the only composer page

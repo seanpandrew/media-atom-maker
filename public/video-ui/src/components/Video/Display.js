@@ -87,7 +87,7 @@ class VideoDisplay extends React.Component {
 
   renderUsagesButton = () => {
     return (
-      <Icon className="icon__edit" icon="add" onClick={this.pageCreate} />
+      <button className="button__secondary" onClick={this.pageCreate}><Icon icon="add_to_queue"></Icon> Create Video Page</button>
     )
   }
 
