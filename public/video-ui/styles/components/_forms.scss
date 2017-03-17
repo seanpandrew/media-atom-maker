@@ -13,7 +13,7 @@
 .form__field {
   position: relative;
   padding: 5px;
-  font-size: 12px;
+  font-size: $fontsize__button;
   border: 1px solid $color500Grey;
   width: 100%;
   background-color: $color650Grey;
@@ -78,7 +78,7 @@
 }
 
 .form__message {
-  font-size: 13px;
+  font-size: $fontsize__button;
   margin: 0;
 
   &--error {
@@ -102,7 +102,7 @@
 
 .form-checkbox {
   padding: 12px 35px;
-  font-size: 13px;
+  font-size: $fontsize__button;
   position: relative;
   display: inline-block;
   border: 1px solid $greyBorderColor;
@@ -203,7 +203,7 @@ textarea {
 }
 
 .form__group__header {
-  font-size: 15px;
+  font-size: $fontsize__header;
   text-transform: uppercase;
   font-weight: bold;
 

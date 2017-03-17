@@ -2,12 +2,12 @@
   width: 100%;
   padding: 15px;
   text-align: left;
-  font-size: 15px;
+  font-size: $fontsize__header;
 
   &__button {
     background-color: $brandColor;
     font-family: $text-font-stack;
-    font-size: 12px;
+    font-size: $fontsize__button;
     font-weight: bold;
     padding: 10px;
     margin:5px 0 2px;

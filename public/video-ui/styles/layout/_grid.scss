@@ -6,7 +6,7 @@
   align-self: center;
   text-align: center;
   width: 100%;
-  font-size: 30px;
+  font-size: $fontsize__gridmsg;
 }
 
 .grid__list {
@@ -80,7 +80,7 @@
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  font-size: 15px;
+  font-size: $fontsize__header;
   line-height: 19px;
   padding: 8px 10px;
   height: 50px;

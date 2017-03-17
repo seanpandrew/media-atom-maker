@@ -33,7 +33,7 @@
     color: $color500Grey;
     font-weight: bold;
     display: block;
-    font-size: 17px;
+    font-size: $fontsize__detailbox;
   }
 
   &__picker {
