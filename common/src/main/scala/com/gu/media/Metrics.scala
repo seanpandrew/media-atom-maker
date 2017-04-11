@@ -3,20 +3,35 @@ package com.gu.media
 import java.time.format.DateTimeFormatter
 import java.time.{OffsetDateTime, ZoneOffset, ZonedDateTime}
 
-import akka.actor.{Actor, ActorRef, ActorSystem, Cancellable, Props}
+import akka.actor.{Actor, ActorSystem, Cancellable, Props}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.gu.media.logging.Logging
-import play.api.libs.json.{JsArray, JsObject, JsValue}
+import org.cvogt.play.json.Jsonx
+import play.api.libs.json.{Format, JsArray, JsObject, JsValue}
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
 case class OldRouteMetrics(videos: Int) // TODO: incorporate Pluto data for publish time
+object OldRouteMetrics {
+  implicit val format: Format[OldRouteMetrics] = Jsonx.formatCaseClass[OldRouteMetrics]
+}
+
 case class NewRouteMetrics(videos: Int,  minPublishTime: Long, maxPublishTime: Long, avgPublishTime: Long)
+object NewRouteMetrics {
+  implicit val format: Format[NewRouteMetrics] = Jsonx.formatCaseClass[NewRouteMetrics]
+}
+
 case class DayMetrics(day: String, oldRoute: OldRouteMetrics, newRoute: NewRouteMetrics)
+object DayMetrics {
+  implicit val format: Format[DayMetrics] = Jsonx.formatCaseClass[DayMetrics]
+}
 
 case class Metrics(dayMetrics: List[DayMetrics])
+object Metrics {
+  implicit val format: Format[Metrics] = Jsonx.formatCaseClass[Metrics]
+}
 
 trait MetricsAccess {
   def getMetrics(forceRefresh: Boolean)(implicit timeout: Timeout): Future[Metrics]
@@ -55,14 +70,20 @@ class MetricsActor(capi: CapiPreviewAccess, refreshRate: FiniteDuration) extends
 
   override def receive: Actor.Receive = {
     case 'refresh =>
-      metrics = Metrics(capiMetrics.getDayMetrics(14))
+      refresh()
 
     case 'force =>
-      metrics = Metrics(capiMetrics.getDayMetrics(14))
+      refresh()
       sender() ! metrics
 
     case 'get =>
       sender() ! metrics
+  }
+
+  private def refresh() = {
+    log.info("Refreshing metrics from CAPI...")
+    metrics = Metrics(capiMetrics.getDayMetrics(14))
+    log.info("Metrics refresh complete")
   }
 }
 

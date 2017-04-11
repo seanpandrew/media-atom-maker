@@ -51,6 +51,9 @@ GET     /api/youtube/processingStatus   controllers.Youtube.processingStatus(vid
 
 GET     /api/transcoder/jobStatus       controllers.Transcoder.jobStatus
 
+# dashbord
+GET     /api2/metrics                   controllers.DashboardController.getMetrics
+
 # reindex
 
 POST    /reindex-preview                com.gu.atom.play.ReindexController.newPreviewReindexJob()

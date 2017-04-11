@@ -2,7 +2,7 @@ import com.gu.atom.play.ReindexController
 import com.gu.media.ses.Mailer
 import com.gu.media.upload.actions.KinesisActionSender
 import com.gu.media.youtube.YouTube
-import com.gu.media.{CapiPreview, MediaAtomMakerPermissionsProvider}
+import com.gu.media.{CapiPreview, MediaAtomMakerPermissionsProvider, MetricsAccess}
 import controllers._
 import data._
 import play.api.ApplicationLoader.Context
@@ -12,6 +12,7 @@ import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator}
 import router.Routes
 import util.{AWSConfig, DevUploadHandler, DevUploadSender, PlutoMessageConsumer}
+import scala.concurrent.duration._
 
 class MediaAtomMakerLoader extends ApplicationLoader {
   override def load(context: Context): Application = new MediaAtomMaker(context).application
@@ -61,6 +62,9 @@ class MediaAtomMaker(context: Context)
   private val transcoder = new util.Transcoder(aws, defaultCacheApi)
   private val transcoderController = new controllers.Transcoder(hmacAuthActions, transcoder)
 
+  private val metrics = MetricsAccess(actorSystem, capi, 15.minutes)
+  private val dashboard = new DashboardController(hmacAuthActions, permissions, stores, metrics)
+
   private val mainApp = new MainApp(stores, wsClient, configuration, hmacAuthActions, permissions)
   private val videoApp = new VideoUIApp(hmacAuthActions, configuration, aws, permissions)
 
@@ -75,6 +79,7 @@ class MediaAtomMaker(context: Context)
     uploads,
     youTubeController,
     transcoderController,
+    dashboard,
     reindexer,
     assets,
     videoApp,
