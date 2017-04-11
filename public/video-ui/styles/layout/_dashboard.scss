@@ -1,0 +1,33 @@
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+
+    &__top {
+        display: flex;
+        margin-bottom: 20px;
+    }
+
+    &__headline {
+        display: flex;
+        flex: 1 0 0;
+
+        height: 100px;
+        margin: 20px;
+
+        &__left {
+            flex: 3 0 0;
+        }
+
+        &__right {
+            flex: 1 0 0;
+            display: flex;
+            flex-direction: column;
+
+            justify-content: center;
+            align-items: center;
+
+            font-size: 40px;
+        }
+    }
+}

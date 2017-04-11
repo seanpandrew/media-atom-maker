@@ -12,7 +12,7 @@ class ReactApp extends React.Component {
   };
 
   componentWillMount() {
-    if (this.props.params.id) {
+    if (this.props.params.id && this.props.params.id !== 'dashboard') {
       this.props.appActions.getVideo(this.props.params.id);
       this.props.appActions.getPublishedVideo(this.props.params.id);
       this.props.appActions.getUploads(this.props.params.id);
@@ -20,7 +20,7 @@ class ReactApp extends React.Component {
   }
 
   componentWillReceiveProps() {
-    if (this.props.params.id &&
+    if (this.props.params.id && this.props.params.id !== 'dashboard' &&
         (!this.props.video || this.props.params.id !== this.props.video.id) &&
         this.state.fetchedVideoFor !== this.props.params.id
       ) {
