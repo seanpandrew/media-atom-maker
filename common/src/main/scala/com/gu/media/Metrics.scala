@@ -3,13 +3,70 @@ package com.gu.media
 import java.time.format.DateTimeFormatter
 import java.time.{OffsetDateTime, ZoneOffset, ZonedDateTime}
 
+import akka.actor.{Actor, ActorRef, ActorSystem, Cancellable, Props}
+import akka.pattern.ask
+import akka.util.Timeout
+import com.gu.media.logging.Logging
 import play.api.libs.json.{JsArray, JsObject, JsValue}
+
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 case class OldRouteMetrics(videos: Int) // TODO: incorporate Pluto data for publish time
 case class NewRouteMetrics(videos: Int,  minPublishTime: Long, maxPublishTime: Long, avgPublishTime: Long)
 case class DayMetrics(day: String, oldRoute: OldRouteMetrics, newRoute: NewRouteMetrics)
 
-class Metrics(capi: CapiPreviewAccess) {
+case class Metrics(dayMetrics: List[DayMetrics])
+
+trait MetricsAccess {
+  def getMetrics(forceRefresh: Boolean)(implicit timeout: Timeout): Future[Metrics]
+}
+
+object MetricsAccess {
+  def apply(system: ActorSystem, capi: CapiPreviewAccess, refreshRate: FiniteDuration): MetricsAccess = {
+    val actor = system.actorOf(Props(new MetricsActor(capi, refreshRate)))
+
+    new MetricsAccess {
+      override def getMetrics(forceRefresh: Boolean)(implicit timeout: Timeout): Future[Metrics] = {
+        if(forceRefresh) {
+          actor.ask('force).mapTo[Metrics]
+        } else {
+          actor.ask('get).mapTo[Metrics]
+        }
+      }
+    }
+  }
+}
+
+class MetricsActor(capi: CapiPreviewAccess, refreshRate: FiniteDuration) extends Actor with Logging {
+  import context.dispatcher
+
+  private val capiMetrics = new CapiBackedMetrics(capi)
+  private var timer: Option[Cancellable] = None
+  private var metrics = Metrics(List.empty)
+
+  override def preStart(): Unit = {
+    timer = Some(context.system.scheduler.schedule(0.seconds, refreshRate, self, 'refresh))
+  }
+
+  override def postStop(): Unit = {
+    timer.foreach(_.cancel())
+  }
+
+  override def receive: Actor.Receive = {
+    case 'refresh =>
+      metrics = Metrics(capiMetrics.getDayMetrics(14))
+
+    case 'force =>
+      metrics = Metrics(capiMetrics.getDayMetrics(14))
+      sender() ! metrics
+
+    case 'get =>
+      sender() ! metrics
+  }
+}
+
+class CapiBackedMetrics(capi: CapiPreviewAccess) {
   private case class AggregateMetrics(oldVideos: Int, newVideos: Int, newPublishTimes: List[Long])
   private val emptyAggregate = AggregateMetrics(0, 0, List.empty)
 
