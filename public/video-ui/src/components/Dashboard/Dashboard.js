@@ -39,8 +39,8 @@ function CostMetrics() {
 }
 
 function PublishTimeMetrics({ today, metrics }) {
-    const avgTimeToday = Math.ceil(today.newRoute.avgPublishTime / 1000 / 60);
-    const avgTimeMins = metrics.map((day) => Math.ceil(day.newRoute.avgPublishTime / 1000 / 60));
+    const avgTimeToday = Math.ceil(today.newRoute.medianPublishTime / 1000 / 60);
+    const avgTimeMins = metrics.map((day) => Math.ceil(day.newRoute.medianPublishTime / 1000 / 60));
 
     return <div className="dashboard__headline">
         <div className="dashboard__headline__left">

@@ -18,7 +18,7 @@ object OldRouteMetrics {
   implicit val format: Format[OldRouteMetrics] = Jsonx.formatCaseClass[OldRouteMetrics]
 }
 
-case class NewRouteMetrics(videos: Int,  minPublishTime: Long, maxPublishTime: Long, avgPublishTime: Long)
+case class NewRouteMetrics(videos: Int,  minPublishTime: Long, maxPublishTime: Long, medianPublishTime: Long)
 object NewRouteMetrics {
   implicit val format: Format[NewRouteMetrics] = Jsonx.formatCaseClass[NewRouteMetrics]
 }
@@ -149,13 +149,15 @@ class CapiBackedMetrics(capi: CapiPreviewAccess) {
   }
 
   private def present(day: String, metrics: AggregateMetrics): DayMetrics = {
-    val (min, max, avg) = if(metrics.newPublishTimes.isEmpty) {
+    val (min, max, median) = if(metrics.newPublishTimes.isEmpty) {
       (0L, 0L, 0L)
     } else {
       val publishTimes = metrics.newPublishTimes.sorted
-      (publishTimes.head, publishTimes.last, publishTimes.sum / publishTimes.length)
+      val median = metrics.newPublishTimes(metrics.newPublishTimes.length / 2)
+
+      (publishTimes.head, publishTimes.last, median)
     }
 
-    DayMetrics(day, OldRouteMetrics(metrics.oldVideos), NewRouteMetrics(metrics.newVideos, min, max, avg))
+    DayMetrics(day, OldRouteMetrics(metrics.oldVideos), NewRouteMetrics(metrics.newVideos, min, max, median))
   }
 }
