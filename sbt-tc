@@ -1,0 +1,10 @@
+#!/bin/bash
+
+/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java \
+  -XX:+CMSClassUnloadingEnabled \
+  -Xmx2g -XX:MaxPermSize=350m \
+  -XX:+UseCompressedOops \
+  -Dbuild.number="$BUILD_NUMBER" \
+  -Dbuild.vcs.number="$BUILD_VCS_NUMBER" \
+  -Dbuild.vcs.branch="$BUILD_VCS_BRANCH" \
+  -jar $(dirname $0)/sbt-launcher.jar "$@" < /dev/null
