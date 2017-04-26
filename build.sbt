@@ -29,7 +29,9 @@ lazy val common = (project in file("common"))
 lazy val app = (project in file("."))
   .dependsOn(common)
   .enablePlugins(PlayScala, SbtWeb, BuildInfoPlugin, JDebPackaging)
-  .settings(commonSettings,
+  .settings(
+    commonSettings,
+    pipelineStages := Seq(digest),
     name := "media-atom-maker",
     libraryDependencies ++= Dependencies.appDependencies,
 
