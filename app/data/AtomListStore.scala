@@ -23,7 +23,7 @@ class CapiBackedAtomListStore(capi: CapiPreviewAccess) extends AtomListStore {
     // CAPI max page size is 200
     val cappedLimit = limit.map(Math.min(200, _))
 
-    val base = "atoms?types=media&order-by=newest"
+    val base = "atoms?types=media&order-by=newest&use-date=first-publication"
     val searchPart = search.map { q => s"&searchFields=data.title&q=$q" }.getOrElse("")
     val pageSizePart = cappedLimit.map { l => s"&page-size=$l" }.getOrElse("")
 
