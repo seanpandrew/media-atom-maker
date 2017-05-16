@@ -57,7 +57,7 @@ trait YouTubeAccess extends Settings {
 
   def channels: List[YouTubeChannel] = {
     val request = client.channels()
-      .list("snippet")
+      .list("snippet,brandingSettings")
       .setMaxResults(50L)
       .setManagedByMe(true)
       .setOnBehalfOfContentOwner(contentOwner)
