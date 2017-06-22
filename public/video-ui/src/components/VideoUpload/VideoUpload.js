@@ -2,7 +2,7 @@ import React from 'react';
 import Icon from '../Icon';
 import VideoTrail from './VideoTrail';
 import { getStore } from '../../util/storeAccessor';
-import VideoYoutube from '../VideoYoutube/VideoYoutube';
+import YoutubeMetadata from '../YoutubeMetadata/YoutubeMetadata';
 
 class AddAssetFromURL extends React.Component {
   constructor(props) {
@@ -221,7 +221,7 @@ class VideoUpload extends React.Component {
               YouTube Data
             </header>
           </div>
-          <VideoYoutube
+          <YoutubeMetadata
             video={this.props.video || {}}
             saveVideo={this.props.videoActions.saveVideo}
             youtube={this.props.youtube}
