@@ -7,6 +7,7 @@ import CheckBox from '../FormFields/CheckBox';
 import DatePicker from '../FormFields/DatePicker';
 import KeywordPicker from '../FormFields/KeywordPicker';
 import ReadOnly from '../FormFields/ReadOnly';
+import ComposerTagPicker from '../FormFields/ComposerTagPicker';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
 
@@ -68,6 +69,38 @@ class VideoData extends React.Component {
             >
               <ScribeEditorField />
             </ManagedField>
+
+            <ManagedField
+              fieldLocation="byline"
+              name="Byline Tags"
+              placeholder="No byline tags"
+              formRowClass="form__row__byline"
+              tagType="contributor"
+            >
+              <ComposerTagPicker />
+            </ManagedField>
+            <ManagedField
+              fieldLocation="commissioningDesks"
+              name="Comissioning Desks"
+              placeholder="No comissioning desk"
+              formRowClass="form__row__byline"
+              tagType="tracking"
+              inputPlaceholder="Search comissioning info (type '*' to show all)"
+            >
+              <ComposerTagPicker disableTextInput />
+            </ManagedField>
+
+            <ManagedField
+              fieldLocation="keywords"
+              name="Composer Keywords"
+              placeholder="No keywords"
+              formRowClass="form__row__byline"
+              tagType="keyword"
+              inputPlaceholder="Search keywords (type '*' to show all)"
+            >
+              <ComposerTagPicker disableTextInput />
+            </ManagedField>
+
             <ManagedField
               fieldLocation="blockAds"
               name="Block ads"
@@ -113,7 +146,7 @@ class VideoData extends React.Component {
             >
               <ReadOnly />
             </ManagedField>
-            <ManagedField fieldLocation="tags" name="Keywords">
+            <ManagedField fieldLocation="tags" name="YouTube Keywords">
               <KeywordPicker />
             </ManagedField>
           </ManagedSection>

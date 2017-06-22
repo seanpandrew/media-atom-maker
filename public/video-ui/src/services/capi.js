@@ -34,4 +34,16 @@ export default class ContentApi {
       url: `${ContentApi.liveProxyUrl}/${id}`
     });
   }
+
+  static getTagsByType(query, type) {
+    if (query === '*') {
+      return pandaReqwest({
+        url: `${ContentApi.proxyUrl}/tags?page-size=100&type=${type}` //TODO this is likely to change based on CAPI work to search by prefix on webTitle
+      });
+    }
+    const encodedQuery = encodeURIComponent(query);
+    return pandaReqwest({
+      url: `${ContentApi.proxyUrl}/tags?page-size=100&type=${type}&q=${encodedQuery}` //TODO this is likely to change based on CAPI work to search by prefix on webTitle
+    });
+  }
 }

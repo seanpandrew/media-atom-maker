@@ -27,6 +27,21 @@ export function getComposerData(video) {
       name: 'legallySensitive',
       value: video.legallySensitive ? 'true' : 'false',
       belongsTo: 'settings'
+    },
+    {
+      name: 'byline',
+      value: video.byline.join('|'),
+      belongsTo: 'atom'
+    },
+    {
+      name: 'commissioningDesks',
+      value: video.commissioningDesks.join('|'),
+      belongsTo: 'atom'
+    },
+    {
+      name: 'keywords',
+      value: video.keywords.join('|'),
+      belongsTo: 'atom'
     }
   ];
 }
