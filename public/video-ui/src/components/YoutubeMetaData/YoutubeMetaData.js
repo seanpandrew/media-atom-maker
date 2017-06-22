@@ -1,6 +1,7 @@
 import React from 'react';
 import { ManagedForm, ManagedField } from '../ManagedForm';
 import SelectBox from '../FormFields/SelectBox';
+import { privacyStates } from '../../constants/privacyStates';
 
 export default class YoutubeMetaData extends React.Component {
   renderProjectIdForm() {
@@ -52,7 +53,7 @@ export default class YoutubeMetaData extends React.Component {
     );
   }
 
-  renderCategoryForm() {
+  renderMutableDataForm() {
     return (
       <ManagedForm
         data={this.props.video}
@@ -62,6 +63,9 @@ export default class YoutubeMetaData extends React.Component {
         <ManagedField fieldLocation="youtubeCategoryId" name="YouTube Category">
           <SelectBox selectValues={this.props.youtube.categories} />
         </ManagedField>
+        <ManagedField fieldLocation="privacyStatus" name="Privacy Status">
+          <SelectBox selectValues={privacyStates} />
+        </ManagedField>
       </ManagedForm>
     );
   }
@@ -70,7 +74,7 @@ export default class YoutubeMetaData extends React.Component {
     return (
       <div className="form__group">
         {this.renderChannelIdForm()}
-        {this.renderCategoryForm()}
+        {this.renderMutableDataForm()}
         {this.renderProjectIdForm()}
       </div>
     );

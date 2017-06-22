@@ -6,9 +6,9 @@ import SelectBox from '../FormFields/SelectBox';
 import CheckBox from '../FormFields/CheckBox';
 import DatePicker from '../FormFields/DatePicker';
 import KeywordPicker from '../FormFields/KeywordPicker';
+import ReadOnly from '../FormFields/ReadOnly';
 import { fieldLengths } from '../../constants/videoEditValidation';
 import { videoCategories } from '../../constants/videoCategories';
-import { privacyStates } from '../../constants/privacyStates';
 
 class VideoData extends React.Component {
   hasCategories = () => this.props.youtube.categories.length !== 0;
@@ -106,8 +106,12 @@ class VideoData extends React.Component {
             </ManagedField>
           </ManagedSection>
           <ManagedSection>
-            <ManagedField fieldLocation="privacyStatus" name="Privacy Status">
-              <SelectBox selectValues={privacyStates} />
+            <ManagedField
+              fieldLocation="privacyStatus"
+              name="Privacy Status"
+              placeholder="No privacy status"
+            >
+              <ReadOnly />
             </ManagedField>
             <ManagedField fieldLocation="tags" name="Keywords">
               <KeywordPicker />
