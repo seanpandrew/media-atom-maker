@@ -1,11 +1,16 @@
 {
   "presets": [
-    "es2015",
+    ["env", {
+      "targets": {
+        "chrome": "49",
+        "firefox": "46",
+        "uglify": true
+      }
+    }],
     "react"
   ],
   "plugins": [
     "transform-object-assign",
-    "transform-class-properties",
-    "transform-es2015-modules-commonjs"
+    "transform-class-properties"
   ]
 }
