@@ -80,6 +80,9 @@ Parameters:
   TranscoderPipelineId:
     Description: Name of the pipeline that will transcode videos for self-hosted route
     Type: String
+  CloudWatchLogsDestinationArn:
+    Description: Destination where Lambda CloudWatch logs will be sent to (to then be routed to the ELK stack)
+    Type: String
 Mappings:
   StageMap:
     PROD:
@@ -517,6 +520,13 @@ Resources:
       FunctionName: !Ref 'ExpirerLambda'
       Principal: events.amazonaws.com
       SourceArn: !GetAtt [ExpirerLambdaTrigger, Arn]
+  ExpirerLambdaLogs:
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/media-atom-maker-expirer-${Stage}"
+      DestinationArn: !Ref CloudWatchLogsDestinationArn
+      FilterPattern: !Sub "{ $.stack = \"${Stack}\" }"
+
   MediaAtomMakerLoadBalancer:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     Properties:
