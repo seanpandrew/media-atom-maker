@@ -6,15 +6,13 @@ export default function removeStringTagDuplicates(tag, tagValue) {
 
   const tagWords = tag.webTitle
     .split(' ')
-    .map(word => word.toLowerCase())
     .reverse();
 
-  const addedValues = tagValue.slice(0).map(word => {
-    if (!word.id) {
-      return word.toLowerCase();
-    }
-    return word;
-  });
+  const tagValueCopy = tagValue.slice(0);
+  const lastElement = tagValueCopy.slice(-1)[0];
+  const lastElementWithoutLastWord = lastElement.split(' ').filter(elem => elem.length !== 0).slice(0, -1)[0];
+  tagValueCopy.splice(-1, 1, lastElementWithoutLastWord);
+  const addedValues = tagValueCopy;
 
   const valuesLength = addedValues.length;
   let numberOfMatches = 0;

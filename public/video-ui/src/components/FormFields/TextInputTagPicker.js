@@ -62,6 +62,14 @@ export default class TextInputTagPicker extends React.Component {
     return '';
   };
 
+  getLastTextInputElement = () => {
+    const lastElement = this.props.tagValue[this.props.tagValue.length - 1];
+    if (typeof lastElement === 'string') {
+      return lastElement;
+    }
+    return null;
+  }
+
   updateInput = e => {
       // If the user did not add new text input, we update the tag search
     if (this.state.lastAction === UserActions.delete) {
@@ -79,38 +87,53 @@ export default class TextInputTagPicker extends React.Component {
       );
       this.props.onUpdate(newValue);
     } else {
-      this.setState({
-        inputString: e.target.value
-      });
 
       if (!this.props.disableCapiTags) {
-        const searchText = e.target.value;
+
+        const allWords = e.target.value.split(' ').reverse().filter(word => {
+          return word.length !== 0
+        });
+        let searchTextElems = [];
+        for (var i = 0; i < allWords.length; i++) {
+          const word = allWords[i];
+          if (word[0].toUpperCase() === word[0]) {
+            searchTextElems.push(word);
+          } else {
+            break;
+          }
+        }
+
+        const searchText = searchTextElems.reverse().join(' ');
 
         this.props.fetchTags(searchText);
 
+      }
+
+      if (this.props.selectedTagIndex === null) {
+        //input string here should be last element
+        const newInput = e.target.value;
+
+        const parsedNewInput = this.props.tagType === TagTypes.youtube ? this.getYoutubeInputValue() : newInput
+
+        let newFieldValue;
+
+        if (this.props.tagValue.length === 0) {
+          newFieldValue = [parsedNewInput];
+        } else {
+          //but if tag? fix
+          const lastValue = this.props.tagValue[this.props.tagValue.length - 1];
+          const oldValues = typeof lastValue === 'string' ? this.props.tagValue.slice(0, -1) : this.props.tagValue;
+          newFieldValue = oldValues.concat([parsedNewInput]);
+        }
+
+        this.props.onUpdate(newFieldValue);
       }
     }
   };
 
   processTagInput = e => {
-    if (e.keyCode === keyCodes.enter) {
 
-      if (this.props.selectedTagIndex === null) {
-        const onlyWhitespace = !/\S/.test(this.state.inputString);
-        if (!onlyWhitespace) {
-
-          const newInput = this.props.tagType === TagTypes.youtube ? this.getYoutubeInputValue() : this.state.inputString;
-
-          const newFieldValue = newInput ? this.props.tagValue.concat([newInput]) : this.props.tagValue;
-
-          this.props.onUpdate(newFieldValue);
-          this.setState({
-            inputString: '',
-          });
-        }
-      }
-
-    } else if (e.keyCode === keyCodes.backspace) {
+    if (e.keyCode === keyCodes.backspace) {
       if (this.state.inputString.length === 0) {
         const lastInput = this.props.tagValue[this.props.tagValue.length - 1];
 
@@ -157,17 +180,18 @@ export default class TextInputTagPicker extends React.Component {
   };
 
   renderTextInputElement(lastElement) {
+    //TODO split the value displayed at the end
 
     return (
       <span className="form__field__tag--container">
-        {lastElement && this.renderValue(lastElement, 0, true)}
+        {lastElement && (typeof lastElement !== 'string') && this.renderValue(lastElement, 0, true)}
         <input
           type="text"
           className="form__field__tag--input"
           id={this.props.fieldName}
           onKeyDown={this.processTagInput}
 r         onChange={this.updateInput}
-          value={this.state.inputString}
+          value={typeof lastElement === 'string' ? lastElement : ''}
         />
       </span>
     );
