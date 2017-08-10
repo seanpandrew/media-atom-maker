@@ -23,6 +23,8 @@ class ExpirerLambda extends RequestHandler[Unit, Unit]
   def expireInParallel = true // disabled in unit tests
 
   override def handleRequest(input: Unit, context: Context): Unit = {
+    log.info("Running Media Atom expiry lambda")
+
     val epochMillis = Instant.now().toEpochMilli
     val assets = getVideosFromExpiredAtoms(100, 1, epochMillis, Set.empty).filter(isManagedVideo)
 
