@@ -29,7 +29,11 @@ html {
 
 .container {
   padding: 40px;
-  max-width: 900px;
   width: 100%;
   margin: 0 auto;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
 }

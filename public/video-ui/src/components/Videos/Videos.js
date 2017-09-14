@@ -24,7 +24,7 @@ class Videos extends React.Component {
   renderList() {
     if (this.props.videos.length) {
       return (
-        <ul className="grid__list">
+        <ul className="video-list">
           {this.renderListItems()}
         </ul>
       );
@@ -35,7 +35,11 @@ class Videos extends React.Component {
 
   renderListItems() {
     return this.props.videos.map(video => (
-      <VideoItem key={video.id} video={video} />
+      <VideoItem
+        key={video.id}
+        video={video}
+        embeddedMode={this.props.config.embeddedMode}
+      />
     ));
   }
 
@@ -62,10 +66,8 @@ class Videos extends React.Component {
 
   render() {
     return (
-      <div>
-        <div className="grid">
-          {this.renderList()}
-        </div>
+      <div className="container">
+        {this.renderList()}
         {this.renderMoreLink()}
       </div>
     );
@@ -82,7 +84,8 @@ function mapStateToProps(state) {
     videos: state.videos.entries,
     total: state.videos.total,
     limit: state.videos.limit,
-    searchTerm: state.searchTerm
+    searchTerm: state.searchTerm,
+    config: state.config
   };
 }
 

@@ -3,16 +3,20 @@ import { Link } from 'react-router';
 import { findSmallestAssetAboveWidth } from '../../util/imageHelpers';
 
 export default class VideoItem extends React.Component {
-  renderPill() {
+  renderActions() {
     switch (this.props.video.status) {
       case 'Expired':
         return <div className="publish__label label__expired">Expired</div>;
       case 'Active':
-        return (
-          <span className="publish__label label__live label__frontpage__overlay">
-            Active
-          </span>
-        );
+        if (this.props.embeddedMode) {
+          return (
+            <span>hasdsa</span>
+          );
+        } else {
+          return (
+            <span/>
+          );
+        }
       default:
         return (
           <span className="publish__label label__frontpage__novideo label__frontpage__overlay">
@@ -23,36 +27,41 @@ export default class VideoItem extends React.Component {
   }
 
   renderItemImage() {
-    if (this.props.video.posterImage) {
-      const image = findSmallestAssetAboveWidth(
-        this.props.video.posterImage.assets
+    if (!this.props.video.posterImage) {
+      return (
+        <div className="video-list__item__image--content">
+          No Image
+        </div>
       );
-
-      return <img src={image.file} alt={this.props.video.title} />;
     }
 
-    return <div className="grid__image__placeholder">No Image</div>;
+    const image = findSmallestAssetAboveWidth(
+      this.props.video.posterImage.assets
+    );
+
+    return (
+      <img
+        className="video-list__item__image--content"
+        src={image.file}
+        alt={this.props.video.title}
+      />
+    );
   }
 
   render() {
     return (
-      <li className="grid__item">
-        <Link className="grid__link" to={'/videos/' + this.props.video.id}>
-
-          <div className="grid__info">
-            <div className="grid__image">
-              {this.renderItemImage()}
-            </div>
-            <div className="grid__status__overlay">
-              {this.renderPill()}
-            </div>
-            <div className="grid__item__footer">
-              <span className="grid__item__title">
-                {this.props.video.title}
-              </span>
-            </div>
+      <li className="video-list__item">
+        <Link className="grid__link_" to={'/videos/' + this.props.video.id}>
+          <div className="video-list__item__image">
+            {this.renderItemImage()}
+          </div>
+          <div className="video-list__item__title">
+            {this.props.video.title}
           </div>
         </Link>
+        <div className="video-list__item__actions">
+          {this.renderActions()}
+        </div>
       </li>
     );
   }
