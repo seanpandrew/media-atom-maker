@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import VideoSelectBar from '../VideoSelectBar/VideoSelectBar';
+import EmbedLink from '../EmbedLink/EmbedLink';
 import VideoPreview from '../VideoPreview/VideoPreview';
 import VideoImages from '../VideoImages/VideoImages';
 import VideoUsages from '../VideoUsages/VideoUsages';
@@ -178,6 +179,16 @@ class VideoDisplay extends React.Component {
     );
   }
 
+  renderEmbedLink(video) {
+    return (
+      <EmbedLink
+        video={video}
+        publishedVideo={this.props.publishedVideo}
+        capiBaseUrl={this.props.config.capiBaseUrl || 'https://content.guardianapis.com'}
+      />
+    );
+  }
+
   renderMetadata() {
     return (
       <div className="video__detailbox video__data">
@@ -247,6 +258,7 @@ class VideoDisplay extends React.Component {
     return (
       <div>
         {this.renderSelectBar(video)}
+        {this.renderEmbedLink(video)}
 
         <div className="video">
           <div className="video__main">
