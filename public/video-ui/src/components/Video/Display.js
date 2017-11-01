@@ -15,6 +15,7 @@ import { blankVideoData } from '../../constants/blankVideoData';
 import  KeywordsApi from '../../services/KeywordsApi';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
+import { getVideoBlock } from '../../util/getVideoBlock';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
@@ -29,6 +30,14 @@ class VideoDisplay extends React.Component {
     }
   }
 
+  canonicalVideoPageExists = () => {
+    return this.props.usages.totalVideoPages > 0;
+  };
+
+  getComposerUrl = () => {
+    return getStore().getState().config.composerUrl;
+  };
+
   saveAndUpdateVideo = video => {
     if (this.props.route.mode === 'create') {
       this.props.videoActions.createVideo(video)
@@ -36,7 +45,23 @@ class VideoDisplay extends React.Component {
           this.props.videoActions.getUsages(this.props.video.id);
         });
     } else {
-      this.props.videoActions.saveVideo(video);
+      this.props.videoActions.saveVideo(video)
+      .then(() => {
+        if (this.canonicalVideoPageExists()) {
+          const videoBlock = getVideoBlock(
+            this.props.video.id,
+            this.props.video.title,
+            this.props.video.source
+          );
+
+          this.props.videoActions.updateVideoPage(
+            this.props.video,
+            this.getComposerUrl(),
+            videoBlock,
+            this.props.usages
+          );
+        }
+      });
     }
   };
 
@@ -324,6 +349,8 @@ import * as updateFormErrors
   from '../../actions/FormErrorActions/updateFormErrors';
 import * as updateFormWarnings
   from '../../actions/FormErrorActions/updateFormWarnings';
+import * as videoPageUpdate
+  from '../../actions/VideoActions/videoPageUpdate';
 
 function mapStateToProps(state) {
   return {
@@ -348,7 +375,8 @@ function mapDispatchToProps(dispatch) {
         updateVideo,
         videoUsages,
         getPublishedVideo,
-        updateVideoEditState
+        updateVideoEditState,
+        videoPageUpdate
       ),
       dispatch
     ),
