@@ -2,7 +2,6 @@ import React from 'react';
 import { saveStateVals } from '../../constants/saveStateVals';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
-import { getVideoBlock } from '../../util/getVideoBlock';
 import { getStore } from '../../util/storeAccessor';
 
 export default class VideoPublishBar extends React.Component {
@@ -22,30 +21,11 @@ export default class VideoPublishBar extends React.Component {
     return (
       this.videoIsCurrentlyPublishing() ||
       this.props.videoEditOpen ||
-      !this.videoHasUnpublishedChanges() ||
-      (this.props.canonicalVideoPageExists() && this.props.requiredComposerFieldsMissing())
+      !this.videoHasUnpublishedChanges()
     );
   }
 
-  getComposerUrl = () => {
-    return getStore().getState().config.composerUrl;
-  };
-
   publishVideo = () => {
-    const videoBlock = getVideoBlock(
-      this.props.video.id,
-      this.props.video.title,
-      this.props.video.source
-    );
-
-    if (this.props.canonicalVideoPageExists()) {
-      this.props.updateVideoPage(
-        this.props.video,
-        this.getComposerUrl(),
-        videoBlock,
-        this.props.usages
-      );
-    }
 
     this.props.publishVideo();
   };
