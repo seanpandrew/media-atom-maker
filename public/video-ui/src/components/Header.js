@@ -187,6 +187,8 @@ export default class Header extends React.Component {
             editableFields={this.props.editableFields}
             saveState={this.props.saveState}
             videoEditOpen={this.props.videoEditOpen}
+            updateVideoPage={this.props.updateVideoPage}
+            requiredComposerFieldsMissing={this.requiredComposerFieldsMissing}
             usages={this.props.usages}
             publishVideo={this.publishVideo}
             formFieldsWarning={this.props.formFieldsWarning}
