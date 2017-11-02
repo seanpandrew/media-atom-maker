@@ -16,6 +16,7 @@ import  KeywordsApi from '../../services/KeywordsApi';
 import YouTubeKeywords from '../../constants/youTubeKeywords';
 import { getYouTubeTagCharCount } from '../../util/getYouTubeTagCharCount';
 import { getVideoBlock } from '../../util/getVideoBlock';
+import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 
 class VideoDisplay extends React.Component {
   componentWillMount() {
@@ -30,10 +31,6 @@ class VideoDisplay extends React.Component {
     }
   }
 
-  canonicalVideoPageExists = () => {
-    return this.props.usages.totalVideoPages > 0;
-  };
-
   getComposerUrl = () => {
     return getStore().getState().config.composerUrl;
   };
@@ -47,7 +44,7 @@ class VideoDisplay extends React.Component {
     } else {
       this.props.videoActions.saveVideo(video)
       .then(() => {
-        if (this.canonicalVideoPageExists()) {
+        if (canonicalVideoPageExists(this.props.usages)) {
           const videoBlock = getVideoBlock(
             this.props.video.id,
             this.props.video.title,
@@ -129,7 +126,7 @@ class VideoDisplay extends React.Component {
           return keyword.match(/^tone/);
         })
        ) {
-        if (this.canonicalVideoPageExists()) {
+        if (canonicalVideoPageExists(this.props.usages)) {
           return new FieldNotification(
             'error',
             'A series or a keyword tag is required for updating composer pages',
@@ -269,7 +266,7 @@ class VideoDisplay extends React.Component {
           validateKeywords={this.validateKeywords}
           validateYouTubeKeywords={this.validateYouTubeKeywords}
           composerKeywordsToYouTube={this.composerKeywordsToYouTube}
-          canonicalVideoPageExists={this.canonicalVideoPageExists()}
+          canonicalVideoPageExists={canonicalVideoPageExists(this.props.usages)}
         />
       </div>
     );
