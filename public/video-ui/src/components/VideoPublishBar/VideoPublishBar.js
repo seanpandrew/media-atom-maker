@@ -3,7 +3,6 @@ import { saveStateVals } from '../../constants/saveStateVals';
 import { isVideoPublished } from '../../util/isVideoPublished';
 import { hasUnpublishedChanges } from '../../util/hasUnpublishedChanges';
 import { getStore } from '../../util/storeAccessor';
-import { getVideoBlock } from '../../util/getVideoBlock';
 import { canonicalVideoPageExists } from '../../util/canonicalVideoPageExists';
 
 export default class VideoPublishBar extends React.Component {
@@ -45,16 +44,9 @@ export default class VideoPublishBar extends React.Component {
 
     if (this.publishedCanonicalVideoPageExists()) {
 
-      const videoBlock = getVideoBlock(
-        this.props.video.id,
-        this.props.video.title,
-        this.props.video.source
-      );
-
       this.props.updateVideoPage(
         this.props.video,
         this.getComposerUrl(),
-        videoBlock,
         this.props.usages,
         'published'
       );
