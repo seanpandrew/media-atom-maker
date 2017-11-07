@@ -2,8 +2,13 @@
 
 set -e
 
-install_yarn() {
-  npm install -g yarn
+install_globals() {
+  npm install -g snyk yarn
+}
+
+snyk_test() {
+  snyk test --org=guardian --file=package.json
+  snyk test --org=guardian --file=build.sbt
 }
 
 js_pluto_lambda(){
@@ -27,7 +32,8 @@ js_build() {
 }
 
 main() {
-  install_yarn
+  install_globals
+  snyk_test
   js_pluto_lambda
   js_deps
   js_test
