@@ -24,15 +24,17 @@ export function createUpload(atomId, file, selfHost) {
   });
 }
 
-function getCredentials(id, key) {
+function getCredentials({ id, key }) {
+  const payload = key ? { uploadId: id, key } : { atomId: id };
+
   return pandaReqwest({
-    url: `/api2/uploads/${id}/credentials?key=${key}`,
-    method: 'post'
+    url: `/api2/uploads/credentials`,
+    method: 'post',
+    data: payload
   });
 }
 
-function getS3(bucket, region, credentials) {
-  const { temporaryAccessId, temporarySecretKey, sessionToken } = credentials;
+function getS3({ temporaryAccessId, temporarySecretKey, sessionToken, bucket, region }) {
   const awsCredentials = new AWS.Credentials(
     temporaryAccessId,
     temporarySecretKey,
@@ -50,15 +52,11 @@ function getS3(bucket, region, credentials) {
 function uploadPart(upload, part, file, progressFn) {
   const slice = file.slice(part.start, part.end);
 
-  return getCredentials(upload.id, part.key).then(credentials => {
-    const s3 = getS3(
-      upload.metadata.bucket,
-      upload.metadata.region,
-      credentials
-    );
+  return getCredentials({id: upload.id, key: part.key}).then(credentials => {
+    const s3 = getS3(credentials);
 
     const params = {
-      Key: part.key,
+      Key: credentials.key,
       Body: slice,
       ACL: 'private',
       Metadata: { original: file.name }
@@ -93,5 +91,24 @@ export function uploadParts(upload, parts, file, progressFn) {
     }
 
     uploadPartRecursive(parts);
+  });
+}
+
+export function uploadPacFile({id, file}) {
+  return getCredentials({id}).then(credentials => {
+    const s3 = getS3(credentials);
+
+    const params = {
+      Key: credentials.key,
+      Body: file,
+      ACL: 'private',
+      Metadata: {
+        original: file.name
+      }
+    };
+
+    const request = s3.upload(params);
+
+    return request.promise();
   });
 }

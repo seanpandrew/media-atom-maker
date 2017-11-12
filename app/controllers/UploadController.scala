@@ -23,7 +23,7 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
 
   import authActions.APIAuthAction
 
-  private val credsGenerator = new CredentialsGenerator(awsConfig)
+  private val credsGenerator = new CredentialsGenerator(awsConfig, stepFunctions)
   private val uploadDecorator = new UploadDecorator(awsConfig, stepFunctions)
 
   def list(atomId: String) = APIAuthAction { req =>
@@ -56,14 +56,25 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
     }
   }
 
-  def credentials(id: String, key: String) = LookupPermissions { implicit req =>
-    getPart(id, key) match {
-      case Some(part) =>
-        val credentials = credsGenerator.forKey(part.key)
-        Ok(Json.toJson(credentials))
-
-      case None =>
-        NotFound
+  def credentials() = LookupPermissions { implicit raw =>
+    parse(raw) { uploadRequest: UploadCredentialRequest =>
+      uploadRequest match {
+        case videoPartRequest: VideoPartUploadCredentialRequest => {
+          getPart(videoPartRequest) match {
+            case Some(part) =>
+              val credentials = credsGenerator.forVideoPartKey(part.key)
+              Ok(Json.toJson(credentials))
+            case None =>
+              NotFound
+          }
+        }
+        case pacFileRequest: PacFileUploadCredentialRequest => {
+          val thriftAtom = getPreviewAtom(pacFileRequest.atomId)
+          val atom = MediaAtom.fromThrift(thriftAtom)
+          val credentials = credsGenerator.forPacFile(atom)
+          Ok(Json.toJson(credentials))
+        }
+      }
     }
   }
 
@@ -87,9 +98,9 @@ class UploadController(override val authActions: HMACAuthActions, awsConfig: AWS
       video
   }
 
-  private def getPart(id: String, key: String): Option[UploadPart] = for {
-    upload <- stepFunctions.getById(id)
-    part <- upload.parts.find(_.key == key)
+  private def getPart(videoPartUploadCredentialsRequest: VideoPartUploadCredentialRequest): Option[UploadPart] = for {
+    upload <- stepFunctions.getById(videoPartUploadCredentialsRequest.uploadId)
+    part <- upload.parts.find(_.key == videoPartUploadCredentialsRequest.key)
   } yield part
 
   private def getRunning(assets: List[ClientAsset], job: ExecutionListItem): Option[ClientAsset] = {

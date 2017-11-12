@@ -1,4 +1,4 @@
-import { createUpload, uploadParts } from '../../services/UploadsApi';
+import { createUpload, uploadParts, uploadPacFile} from '../../services/UploadsApi';
 import { errorDetails } from '../../util/errorDetails';
 
 function uploadStarted(upload) {
@@ -33,7 +33,7 @@ function uploadError(error) {
   };
 }
 
-export function startUpload({id, file, selfHost}) {
+export function startVideoUpload({id, file, selfHost}) {
   return dispatch => {
     createUpload(id, file, selfHost).then(upload => {
       dispatch(uploadStarted(upload));
@@ -49,4 +49,14 @@ export function startUpload({id, file, selfHost}) {
         });
     });
   };
+}
+
+export function startPacFileUpload({id, file}) {
+  return dispatch => {
+    return uploadPacFile({id, file}).then(() => {
+      dispatch(uploadComplete());
+    }).catch(err => {
+      dispatch(uploadError(errorDetails(err)));
+    });
+  }
 }
