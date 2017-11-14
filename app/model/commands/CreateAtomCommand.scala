@@ -27,12 +27,14 @@ case class CreateAtomCommand(data: MediaAtomBeforeCreation, override val stores:
     val atomId = randomUUID().toString
     val createdChangeRecord = Some(ChangeRecord.now(user))
     val scheduledLaunchDate: Option[DateTime] = data.contentChangeDetails.scheduledLaunch.map(scheduledLaunch => new DateTime(scheduledLaunch.date))
+    val embargo: Option[DateTime] = data.contentChangeDetails.embargo.map(embargo => new DateTime(embargo.date))
     val details = media.model.ContentChangeDetails(
       lastModified = createdChangeRecord,
       created = createdChangeRecord,
       published = None,
       revision = 1L,
-      scheduledLaunch = scheduledLaunchDate.map(ChangeRecord.build(_, user))
+      scheduledLaunch = scheduledLaunchDate.map(ChangeRecord.build(_, user)),
+      embargo = embargo.map(ChangeRecord.build(_, user))
     )
 
     log.info(s"Request to create new atom $atomId [${data.title}]")

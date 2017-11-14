@@ -8,9 +8,10 @@ case class ContentChangeDetails(
   created: Option[ChangeRecord],
   published: Option[ChangeRecord],
   revision: Long,
-  scheduledLaunch: Option[ChangeRecord]
+  scheduledLaunch: Option[ChangeRecord],
+  embargo: Option[ChangeRecord]
 ) {
-    def asThrift = ThriftContentChangeDetails(lastModified.map(_.asThrift), created.map(_.asThrift), published.map(_.asThrift), revision, scheduledLaunch = scheduledLaunch.map(_.asThrift))
+    def asThrift = ThriftContentChangeDetails(lastModified.map(_.asThrift), created.map(_.asThrift), published.map(_.asThrift), revision, scheduledLaunch = scheduledLaunch.map(_.asThrift), embargo = embargo.map(_.asThrift))
 }
 
 object ContentChangeDetails {
@@ -21,6 +22,7 @@ object ContentChangeDetails {
     ccd.created.map(ChangeRecord.fromThrift),
     ccd.published.map(ChangeRecord.fromThrift),
     ccd.revision,
-    ccd.scheduledLaunch.map(ChangeRecord.fromThrift)
+    ccd.scheduledLaunch.map(ChangeRecord.fromThrift),
+    ccd.embargo.map(ChangeRecord.fromThrift)
   )
 }
