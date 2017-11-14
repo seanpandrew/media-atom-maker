@@ -68,6 +68,7 @@ export default class ScheduledLaunch extends React.Component {
   saveDate = (actionType) => {
     const isSchedule = actionType === 'schedule';
     const key = isSchedule ? 'scheduledLaunch' : 'embargo';
+    const selectedDate = actionType === 'schedule' ? 'selectedScheduleDate' : 'selectedEmbargoDate';
     const video = this.props.video;
     this.props.saveVideo(
       Object.assign({}, video, {
@@ -78,11 +79,12 @@ export default class ScheduledLaunch extends React.Component {
         })
       })
     );
-    this.setState({ showDatePicker: false });
+    this.setState({ showDatePicker: false, [selectedDate]: null });
   }
 
   removeDate = (actionType) => {
     const key = actionType === 'schedule' ? 'scheduledLaunch' : 'embargo';
+    const selectedDate = actionType === 'schedule' ? 'selectedScheduleDate' : 'selectedEmbargoDate';
     const video = this.props.video;
     this.props.saveVideo(
       Object.assign({}, video, {
@@ -91,7 +93,7 @@ export default class ScheduledLaunch extends React.Component {
         })
       })
     );
-    this.setState({ showDatePicker: false });
+    this.setState({ showDatePicker: false, [selectedDate]: null });
   }
 
   /* Render functions */
@@ -142,15 +144,14 @@ export default class ScheduledLaunch extends React.Component {
           <DatePicker
             editable={true}
             onUpdateField={(date) => this.setDate(date, actionType)}
-            fieldValue={actionType === 'schedule' ? selectedScheduleDate : selectedEmbargoDate}
-            placeholder="Set a date..."
+            fieldValue={actionType === 'schedule' ? (selectedScheduleDate || scheduledLaunch) : (selectedEmbargoDate || embargo)}
           />
         }
         {showDatePicker && this.renderAlert(invalidDateError)}
         {
           !showDatePicker &&
           <div className="scheduleOptionsWrapper">
-            <button className="btn" onClick={() => this.setState({ showScheduleOptions: !showScheduleOptions, actionType: null })}>
+            <button className="btn btn--list" onClick={() => this.setState({ showScheduleOptions: !showScheduleOptions, actionType: null })}>
               <Icon icon="access_time"></Icon>
             </button>
             {showScheduleOptions && this.renderScheduleOptions(video, videoEditOpen, scheduledLaunch, embargo)}
@@ -174,7 +175,7 @@ export default class ScheduledLaunch extends React.Component {
         }
         {
           showDatePicker &&
-          <button className="button__secondary--cancel" onClick={() => this.setState({ showDatePicker: false })}>
+          <button className="button__secondary--cancel" onClick={() => this.setState({ showDatePicker: false, selectedScheduleDate: null, selectedEmbargoDate: null })}>
             Cancel
           </button>
         }
