@@ -4,10 +4,9 @@ import DatePicker from '../FormFields/DatePicker';
 import moment from 'moment';
 import Icon from '../Icon';
 
-const isFutureDate = (date) => date && moment(date).isAfter(moment());
+const isFutureDate = date => date && moment(date).isAfter(moment());
 const isSameOrAfter = (dateA, dateB) => moment(dateA).isSameOrAfter(moment(dateB));
 const isAfter = (dateA, dateB) => moment(dateA).isAfter(moment(dateB));
-
 
 export default class ScheduledLaunch extends React.Component {
   static propTypes = {
@@ -31,60 +30,98 @@ export default class ScheduledLaunch extends React.Component {
       this.setState({ invalidDateError: null });
       return;
     }
-    
+
     const { video: { contentChangeDetails } } = this.props;
-    const scheduledLaunch = contentChangeDetails && contentChangeDetails.scheduledLaunch && contentChangeDetails.scheduledLaunch.date;
-    const embargo = contentChangeDetails && contentChangeDetails.embargo && contentChangeDetails.embargo.date;
+    const scheduledLaunch =
+      contentChangeDetails &&
+      contentChangeDetails.scheduledLaunch &&
+      contentChangeDetails.scheduledLaunch.date;
+    const embargo =
+      contentChangeDetails &&
+      contentChangeDetails.embargo &&
+      contentChangeDetails.embargo.date;
 
     this.setState({ invalidDateError: null });
 
     if (!isFutureDate(date)) {
-      this.setState({ invalidDateError: "Date must be in the future!" });
+      this.setState({ invalidDateError: 'Date must be in the future!' });
     }
 
-    if (actionType === 'schedule' && embargo && isFutureDate(date) && !isSameOrAfter(date, embargo)) {
-      this.setState({ invalidDateError: "Scheduled launch can't be earlier than embargo!" });
+    if (
+      actionType === 'schedule' &&
+      embargo &&
+      isFutureDate(date) &&
+      !isSameOrAfter(date, embargo)
+    ) {
+      this.setState({
+        invalidDateError: "Scheduled launch can't be earlier than embargo!"
+      });
     }
 
-    if (actionType === 'embargo' && scheduledLaunch && isFutureDate(date) && isAfter(date, scheduledLaunch)) {
-      this.setState({ invalidDateError: "Embargo can't be later than scheduled launch!" });
+    if (
+      actionType === 'embargo' &&
+      scheduledLaunch &&
+      isFutureDate(date) &&
+      isAfter(date, scheduledLaunch)
+    ) {
+      this.setState({
+        invalidDateError: "Embargo can't be later than scheduled launch!"
+      });
     }
-  }
+  };
 
-  onSelectOption = (actionType) => {
-    const date = actionType === 'schedule' ? this.state.selectedScheduleDate : this.state.selectedEmbargoDate;
+  onSelectOption = actionType => {
+    const date =
+      actionType === 'schedule'
+        ? this.state.selectedScheduleDate
+        : this.state.selectedEmbargoDate;
     this.validateDate(date, actionType);
-    this.setState({ showDatePicker: true, actionType, showScheduleOptions: false });
-  }
+    this.setState({
+      showDatePicker: true,
+      actionType,
+      showScheduleOptions: false
+    });
+  };
 
   setDate = (date, actionType) => {
     if (!actionType) return;
-    const key = actionType === 'schedule' ? 'selectedScheduleDate' : 'selectedEmbargoDate';
+    const key =
+      actionType === 'schedule'
+        ? 'selectedScheduleDate'
+        : 'selectedEmbargoDate';
 
     this.setState({ [key]: date });
     this.validateDate(date, actionType);
-  }
+  };
 
-  saveDate = (actionType) => {
+  saveDate = actionType => {
     const isSchedule = actionType === 'schedule';
     const key = isSchedule ? 'scheduledLaunch' : 'embargo';
-    const selectedDate = actionType === 'schedule' ? 'selectedScheduleDate' : 'selectedEmbargoDate';
+    const selectedDate =
+      actionType === 'schedule'
+        ? 'selectedScheduleDate'
+        : 'selectedEmbargoDate';
     const video = this.props.video;
     this.props.saveVideo(
       Object.assign({}, video, {
         contentChangeDetails: Object.assign({}, video.contentChangeDetails, {
           [key]: Object.assign({}, video.contentChangeDetails[key], {
-            date: isSchedule ? this.state.selectedScheduleDate : this.state.selectedEmbargoDate
+            date: isSchedule
+              ? this.state.selectedScheduleDate
+              : this.state.selectedEmbargoDate
           })
         })
       })
     );
     this.setState({ showDatePicker: false, [selectedDate]: null });
-  }
+  };
 
-  removeDate = (actionType) => {
+  removeDate = actionType => {
     const key = actionType === 'schedule' ? 'scheduledLaunch' : 'embargo';
-    const selectedDate = actionType === 'schedule' ? 'selectedScheduleDate' : 'selectedEmbargoDate';
+    const selectedDate =
+      actionType === 'schedule'
+        ? 'selectedScheduleDate'
+        : 'selectedEmbargoDate';
     const video = this.props.video;
     this.props.saveVideo(
       Object.assign({}, video, {
@@ -94,11 +131,11 @@ export default class ScheduledLaunch extends React.Component {
       })
     );
     this.setState({ showDatePicker: false, [selectedDate]: null });
-  }
+  };
 
   /* Render functions */
 
-  renderScheduleOptions = (video, videoEditOpen, scheduledLaunch, embargo) =>
+  renderScheduleOptions = (video, videoEditOpen, scheduledLaunch, embargo) => (
     <ul className="scheduleOptions">
       <li>
         <button
@@ -119,66 +156,127 @@ export default class ScheduledLaunch extends React.Component {
         </button>
       </li>
     </ul>
+  );
 
-  renderAlert = (invalidDateError) => invalidDateError && <span className="topbar__alert">{invalidDateError}</span>;
+  renderAlert = invalidDateError =>
+    invalidDateError && (
+      <span className="topbar__alert">{invalidDateError}</span>
+    );
 
   render() {
-    const { video, video: { contentChangeDetails }, videoEditOpen } = this.props;
-    const { selectedScheduleDate, selectedEmbargoDate, showScheduleOptions, actionType } = this.state;
+    const {
+      video,
+      video: { contentChangeDetails },
+      videoEditOpen
+    } = this.props;
+    const {
+      selectedScheduleDate,
+      selectedEmbargoDate,
+      showScheduleOptions,
+      actionType
+    } = this.state;
     const showDatePicker = this.state.showDatePicker && !videoEditOpen;
     const invalidDateError = this.state.invalidDateError;
-    const scheduledLaunch = contentChangeDetails && contentChangeDetails.scheduledLaunch && contentChangeDetails.scheduledLaunch.date;
-    const embargo = contentChangeDetails && contentChangeDetails.embargo && contentChangeDetails.embargo.date;
-    
+    const scheduledLaunch =
+      contentChangeDetails &&
+      contentChangeDetails.scheduledLaunch &&
+      contentChangeDetails.scheduledLaunch.date;
+    const embargo =
+      contentChangeDetails &&
+      contentChangeDetails.embargo &&
+      contentChangeDetails.embargo.date;
     return (
       <div className="flex-container topbar__scheduler">
-        {
-          (scheduledLaunch || embargo) && !showDatePicker &&
-          <div className="topbar__launch-label">
-            <div><span className="scheduledSummary--scheduledLaunch">Scheduled:</span> {scheduledLaunch ? moment(scheduledLaunch).format('Do MMM YYYY HH:mm') : '-'}</div>
-            <div><span className="scheduledSummary--embargo">Embargoed:</span> {embargo ? moment(embargo).format('Do MMM YYYY HH:mm') : '-'}</div>
-          </div>
-        }
-        {
-          showDatePicker &&
+        {(scheduledLaunch || embargo) &&
+          !showDatePicker && (
+            <div className="topbar__launch-label">
+              <div>
+                <span className="scheduledSummary--scheduledLaunch">
+                  {'Scheduled: '}
+                </span>
+                {scheduledLaunch
+                  ? moment(scheduledLaunch).format('Do MMM YYYY HH:mm')
+                  : '-'}
+              </div>
+              <div>
+                <span className="scheduledSummary--embargo">
+                  {'Embargoed: '}
+                </span>
+                {embargo ? moment(embargo).format('Do MMM YYYY HH:mm') : '-'}
+              </div>
+            </div>
+          )}
+        {showDatePicker && (
           <DatePicker
             editable={true}
-            onUpdateField={(date) => this.setDate(date, actionType)}
-            fieldValue={actionType === 'schedule' ? (selectedScheduleDate || scheduledLaunch) : (selectedEmbargoDate || embargo)}
+            onUpdateField={date => this.setDate(date, actionType)}
+            fieldValue={
+              actionType === 'schedule'
+                ? selectedScheduleDate || scheduledLaunch
+                : selectedEmbargoDate || embargo
+            }
           />
-        }
+        )}
         {showDatePicker && this.renderAlert(invalidDateError)}
-        {
-          !showDatePicker &&
+        {!showDatePicker && (
           <div className="scheduleOptionsWrapper">
-            <button className="btn btn--list" onClick={() => this.setState({ showScheduleOptions: !showScheduleOptions, actionType: null })}>
-              <Icon icon="access_time"></Icon>
+            <button
+              className="btn btn--list"
+              onClick={() =>
+                this.setState({
+                  showScheduleOptions: !showScheduleOptions,
+                  actionType: null
+                })
+              }
+            >
+              <Icon icon="access_time" />
             </button>
-            {showScheduleOptions && this.renderScheduleOptions(video, videoEditOpen, scheduledLaunch, embargo)}
+            {showScheduleOptions &&
+              this.renderScheduleOptions(
+                video,
+                videoEditOpen,
+                scheduledLaunch,
+                embargo
+              )}
           </div>
-        }
-        {
-          showDatePicker &&
+        )}
+        {showDatePicker && (
           <button
             className="button__secondary--confirm"
             onClick={() => this.saveDate(actionType)}
-            disabled={invalidDateError || (actionType === 'schedule' && !selectedScheduleDate || actionType === 'embargo' && !selectedEmbargoDate)}
+            disabled={
+              invalidDateError ||
+              ((actionType === 'schedule' && !selectedScheduleDate) ||
+                (actionType === 'embargo' && !selectedEmbargoDate))
+            }
           >
             Save
           </button>
-        }
-        {
-          (actionType === 'schedule' && scheduledLaunch || actionType === 'embargo' && embargo) && showDatePicker &&
-          <button className="button__secondary--remove" onClick={() => this.removeDate(actionType)}>
-            Remove
-          </button>
-        }
-        {
-          showDatePicker &&
-          <button className="button__secondary--cancel" onClick={() => this.setState({ showDatePicker: false, selectedScheduleDate: null, selectedEmbargoDate: null })}>
+        )}
+        {((actionType === 'schedule' && scheduledLaunch) ||
+          (actionType === 'embargo' && embargo)) &&
+          showDatePicker && (
+            <button
+              className="button__secondary--remove"
+              onClick={() => this.removeDate(actionType)}
+            >
+              Remove
+            </button>
+          )}
+        {showDatePicker && (
+          <button
+            className="button__secondary--cancel"
+            onClick={() =>
+              this.setState({
+                showDatePicker: false,
+                selectedScheduleDate: null,
+                selectedEmbargoDate: null
+              })
+            }
+          >
             Cancel
           </button>
-        }
+        )}
       </div>
     );
   }
