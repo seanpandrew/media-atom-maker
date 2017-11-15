@@ -135,8 +135,8 @@ export default class ScheduledLaunch extends React.Component {
         {
           (scheduledLaunch || embargo) && !showDatePicker &&
           <div className="topbar__launch-label">
-            <div><strong>Scheduled:</strong> {scheduledLaunch ? moment(scheduledLaunch).format('Do MMM YYYY HH:mm') : '-'}</div>
-            <div><strong>Embargoed:</strong> {embargo ? moment(embargo).format('Do MMM YYYY HH:mm') : '-'}</div>
+            <div><span className="scheduledSummary--scheduledLaunch">Scheduled:</span> {scheduledLaunch ? moment(scheduledLaunch).format('Do MMM YYYY HH:mm') : '-'}</div>
+            <div><span className="scheduledSummary--embargo">Embargoed:</span> {embargo ? moment(embargo).format('Do MMM YYYY HH:mm') : '-'}</div>
           </div>
         }
         {
