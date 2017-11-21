@@ -12,7 +12,7 @@ class SendToTranscoder extends LambdaWithParams[Upload, Upload]
   with Logging
 {
   override def handle(upload: Upload): Upload = {
-    val input = upload.metadata.pluto.s3Key
+    val input = upload.metadata.pluto.completeKey()
 
     upload.metadata.asset match {
       case Some(SelfHostedAsset(sources)) =>

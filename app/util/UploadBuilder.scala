@@ -15,7 +15,8 @@ object UploadBuilder {
     val plutoData = PlutoSyncMetadata(
       enabled = aws.syncWithPluto,
       projectId = atom.plutoData.flatMap(_.projectId),
-      s3Key = CompleteUploadKey(aws.userUploadFolder, id).toString,
+      s3Bucket = aws.userUploadBucket,
+      s3Folder = s"${aws.userUploadFolder}/$id",
       atomId = atom.id,
       title = atom.title,
       user = email,

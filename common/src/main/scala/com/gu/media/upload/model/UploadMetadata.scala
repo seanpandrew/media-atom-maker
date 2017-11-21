@@ -21,12 +21,17 @@ case class UploadMetadata(
 case class PlutoSyncMetadata (
   enabled: Boolean,
   projectId: Option[String],
-  s3Key: String,
+  s3Bucket: String,
+  s3Folder: String,
   atomId: String,
   title: String,
   user: String,
   posterImageUrl: Option[String]
-)
+) {
+  def completeKey(): String = {
+    s"$s3Folder/complete"
+  }
+}
 
 sealed abstract class RuntimeUploadMetadata
 case class YouTubeUploadMetadata(channel: String, uri: Option[String]) extends RuntimeUploadMetadata

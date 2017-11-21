@@ -4,7 +4,7 @@ import com.amazonaws.services.s3.model.{CompleteMultipartUploadRequest, PartETag
 import com.gu.media.aws.S3Access
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
-import com.gu.media.upload.model.{CopyETag, CopyProgress, Upload}
+import com.gu.media.upload.model.{CopyETag, CopyProgress, PlutoSyncMetadata, Upload}
 
 import scala.util.control.NonFatal
 import scala.collection.JavaConverters._
@@ -14,11 +14,11 @@ class CompleteMultipartCopy extends LambdaWithParams[Upload, Upload] with S3Acce
     upload.progress.copyProgress match {
       case Some(CopyProgress(copyId, _ , copyETags)) =>
         val bucket = upload.metadata.bucket
-        val destination = upload.metadata.pluto.s3Key
+        val destination = s"${upload.metadata.pluto.completeKey()}"
         val eTags = copyETags.map { case CopyETag(n, t) => new PartETag(n, t) }
 
         log.info(s"Completing multipart copy. upload=${upload.id} multipart=$copyId")
-        
+
         val request = new CompleteMultipartUploadRequest(bucket, destination, copyId, eTags.asJava)
         s3Client.completeMultipartUpload(request)
 

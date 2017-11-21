@@ -15,7 +15,7 @@ class PlutoUploadActions(config: Settings with DynamoAccess with KinesisAccess w
 
     plutoData.projectId match {
       case Some(project) =>
-        config.sendOnKinesis(config.uploadsStreamName, plutoData.s3Key, plutoData)
+        config.sendOnKinesis(config.uploadsStreamName, plutoData.s3Folder, plutoData)
 
       case None =>
         // TODO MRB: re-enable this once the project selector has been fixed

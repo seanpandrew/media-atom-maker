@@ -4,7 +4,7 @@ import com.amazonaws.services.s3.model.{CopyPartRequest, InitiateMultipartUpload
 import com.gu.media.aws.S3Access
 import com.gu.media.lambda.LambdaWithParams
 import com.gu.media.logging.Logging
-import com.gu.media.upload.model.{CopyETag, CopyProgress, Upload}
+import com.gu.media.upload.model.{CopyETag, CopyProgress, PlutoSyncMetadata, Upload}
 
 class MultipartCopyChunkInS3 extends LambdaWithParams[Upload, Upload] with S3Access with Logging {
   override def handle(upload: Upload): Upload = {
@@ -21,7 +21,7 @@ class MultipartCopyChunkInS3 extends LambdaWithParams[Upload, Upload] with S3Acc
   private def start(upload: Upload): CopyProgress = {
     log.info(s"Starting multipart copy for upload ${upload.id}")
 
-    val start = new InitiateMultipartUploadRequest(upload.metadata.bucket, upload.metadata.pluto.s3Key)
+    val start = new InitiateMultipartUploadRequest(upload.metadata.bucket, upload.metadata.pluto.completeKey())
     val copyId = s3Client.initiateMultipartUpload(start).getUploadId
 
     CopyProgress(copyId, fullyCopied = false, eTags = List.empty)
@@ -36,7 +36,7 @@ class MultipartCopyChunkInS3 extends LambdaWithParams[Upload, Upload] with S3Acc
     } else {
       val bucket = upload.metadata.bucket
       val source = upload.parts(part).key
-      val destination = upload.metadata.pluto.s3Key
+      val destination = upload.metadata.pluto.completeKey()
 
       val request = new CopyPartRequest()
         .withUploadId(progress.copyId)
