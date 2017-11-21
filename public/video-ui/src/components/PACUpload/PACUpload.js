@@ -65,16 +65,7 @@ export default class PACUpload extends React.Component {
 
   getButtonClassName() {
     const base = 'btn';
-
-    if (!this.state.uploadling && !this.state.uploaded) {
-      return base;
-    }
-
-    if (this.state.uploading) {
-      return `${base} ${base}--loading`;
-    }
-
-    return this.state.uploaded ? `${base} ${base}--success` : `${base} ${base}--failed`;
+    return this.state.uploading ? `${base} ${base}--loading` : base;
   }
 
   render() {
