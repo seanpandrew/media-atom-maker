@@ -167,7 +167,8 @@ export default class ScheduledLaunch extends React.Component {
     const {
       video,
       video: { contentChangeDetails },
-      videoEditOpen
+      videoEditOpen,
+      hasPublishedVideoUsages
     } = this.props;
     const {
       selectedScheduleDate,
@@ -218,28 +219,29 @@ export default class ScheduledLaunch extends React.Component {
           />
         )}
         {showDatePicker && this.renderAlert(invalidDateError)}
-        {!showDatePicker && (
-          <div className="scheduleOptionsWrapper">
-            <button
-              className="btn btn--list"
-              onClick={() =>
-                this.setState({
-                  showScheduleOptions: !showScheduleOptions,
-                  actionType: null
-                })
-              }
-            >
-              <Icon icon="access_time" />
-            </button>
-            {showScheduleOptions &&
-              this.renderScheduleOptions(
-                video,
-                videoEditOpen,
-                scheduledLaunch,
-                embargo
-              )}
-          </div>
-        )}
+        {!hasPublishedVideoUsages() &&
+          !showDatePicker && (
+            <div className="scheduleOptionsWrapper">
+              <button
+                className="btn btn--list"
+                onClick={() =>
+                  this.setState({
+                    showScheduleOptions: !showScheduleOptions,
+                    actionType: null
+                  })
+                }
+              >
+                <Icon icon="access_time" />
+              </button>
+              {showScheduleOptions &&
+                this.renderScheduleOptions(
+                  video,
+                  videoEditOpen,
+                  scheduledLaunch,
+                  embargo
+                )}
+            </div>
+          )}
         {showDatePicker && (
           <button
             className="button__secondary--confirm"
