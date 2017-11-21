@@ -4,7 +4,7 @@ import { getStore } from '../../util/storeAccessor';
 import AddAssetFromURL from './AddAssetFromURL';
 import PlutoProjectPicker from './PlutoProjectPicker';
 import AddSelfHostedAsset from './AddSelfHostedAsset';
-import AddYouTubeAsset from './AddYouTubeAsset';
+import YoutubeUpload from './YoutubeUpload';
 import PACUpload from '../PACUpload/PACUpload';
 
 class VideoUpload extends React.Component {
@@ -44,13 +44,17 @@ class VideoUpload extends React.Component {
                 projects={this.props.pluto.projects}
                 saveVideo={this.props.videoActions.saveVideo}
               />
-              <AddYouTubeAsset
+              <YoutubeUpload
                 video={this.props.video || {}}
                 categories={this.props.youtube.categories}
                 channels={this.props.youtube.channels}
                 uploading={uploading}
                 saveVideo={this.props.videoActions.saveVideo}
                 startUpload={this.props.uploadActions.startVideoUpload}
+              />
+              <PACUpload
+                startUpload={this.props.uploadActions.startPacFileUpload}
+                video={this.props.video}
               />
               <AddAssetFromURL
                 video={this.props.video}
@@ -62,10 +66,6 @@ class VideoUpload extends React.Component {
                 uploading={uploading}
                 startUpload={this.props.uploadActions.startVideoUpload}
               />
-              <PACUpload
-                startUpload={this.props.uploadActions.startPacFileUpload}
-                video={this.props.video}>
-              </PACUpload>
             </div>
             <VideoTrail
               video={this.props.video}

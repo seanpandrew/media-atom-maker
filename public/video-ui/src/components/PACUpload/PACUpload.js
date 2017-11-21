@@ -51,7 +51,7 @@ export default class PACUpload extends React.Component {
 
   getUploadButtonText() {
     if (!this.state.file) {
-      return 'Choose file';
+      return 'No file chosen';
     }
 
     if (this.state.isValid) {
@@ -79,20 +79,25 @@ export default class PACUpload extends React.Component {
 
   render() {
     return (
-      <section>
-        <input type="file"
-               accept=".xml"
-               disabled={this.state.uploading}
-               onChange={e => this.validate(e.target.files)}/>
-        <button type="button"
-                className={this.getButtonClassName()}
-                disabled={this.state.uploading || !this.state.isValid}
-                onClick={() => this.uploadFile()}
-        >
-          <Icon icon="file_upload">
-            {this.getUploadButtonText()}
-          </Icon>
-        </button>
+      <section className="video__detailbox">
+        <header className="video__detailbox__header">
+          Upload PAC Form XML
+        </header>
+        <div className="form__group">
+          <input type="file"
+                 accept=".xml"
+                 disabled={this.state.uploading}
+                 onChange={e => this.validate(e.target.files)}/>
+          <button type="button"
+                  className={this.getButtonClassName()}
+                  disabled={this.state.uploading || !this.state.isValid}
+                  onClick={() => this.uploadFile()}
+          >
+            <Icon icon="file_upload">
+              {this.getUploadButtonText()}
+            </Icon>
+          </button>
+        </div>
       </section>
     );
   }
