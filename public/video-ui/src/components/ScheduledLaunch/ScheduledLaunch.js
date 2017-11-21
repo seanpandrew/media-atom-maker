@@ -83,6 +83,24 @@ export default class ScheduledLaunch extends React.Component {
     });
   };
 
+  preventPublication = () => {
+    const video = this.props.video;
+    const impossiblyDistantDate = 16725225600000;
+    this.props.saveVideo(
+      Object.assign({}, video, {
+        contentChangeDetails: Object.assign({}, video.contentChangeDetails, {
+          embargo: Object.assign({}, video.contentChangeDetails.embargo, {
+            date: impossiblyDistantDate
+          })
+        })
+      })
+    );
+    this.setState({
+      selectedEmbargoDate: impossiblyDistantDate,
+      showScheduleOptions: false
+    });
+  };
+
   setDate = (date, actionType) => {
     if (!actionType) return;
     const key =
@@ -135,28 +153,58 @@ export default class ScheduledLaunch extends React.Component {
 
   /* Render functions */
 
-  renderScheduleOptions = (video, videoEditOpen, scheduledLaunch, embargo) => (
-    <ul className="scheduleOptions">
-      <li>
-        <button
-          className="btn btn--list"
-          onClick={() => this.onSelectOption('schedule')}
-          disabled={!video || videoEditOpen}
-        >
-          {scheduledLaunch ? 'Edit scheduled date' : 'Schedule'}
-        </button>
-      </li>
-      <li>
-        <button
-          className="btn btn--list"
-          onClick={() => this.onSelectOption('embargo')}
-          disabled={!video || videoEditOpen}
-        >
-          {embargo ? 'Edit embargo' : 'Embargo until...'}
-        </button>
-      </li>
-    </ul>
-  );
+  renderScheduleOptions = (video, videoEditOpen, scheduledLaunch, embargo) => {
+    const hasPreventedPublication = embargo && embargo > 16693689600000;
+    return (
+      <ul className="scheduleOptions">
+        {!hasPreventedPublication && (
+          <li>
+            <button
+              className="btn btn--list"
+              onClick={() => this.onSelectOption('schedule')}
+              disabled={!video || videoEditOpen}
+            >
+              {scheduledLaunch ? 'Edit scheduled date' : 'Schedule'}
+            </button>
+          </li>
+        )}
+        {!hasPreventedPublication && (
+          <li>
+            <button
+              className="btn btn--list"
+              onClick={() => this.onSelectOption('embargo')}
+              disabled={!video || videoEditOpen}
+            >
+              {embargo ? 'Edit embargo' : 'Embargo until...'}
+            </button>
+          </li>
+        )}
+        {!embargo &&
+          !scheduledLaunch && (
+            <li>
+              <button
+                className="btn btn--list"
+                onClick={() => this.preventPublication()}
+                disabled={!video || videoEditOpen}
+              >
+                Prevent publication
+              </button>
+            </li>
+          )}
+        {hasPreventedPublication && (
+          <li>
+            <button
+              className="btn btn--list"
+              onClick={() => this.removeDate('embargo')}
+              disabled={!video || videoEditOpen}
+            >
+              Remove indefinite embargo
+            </button>
+          </li>
+        )}
+      </ul>
+    );
+  };
 
   renderAlert = invalidDateError =>
     invalidDateError && (
@@ -186,9 +234,10 @@ export default class ScheduledLaunch extends React.Component {
       contentChangeDetails &&
       contentChangeDetails.embargo &&
       contentChangeDetails.embargo.date;
+    const hasPreventedPublication = embargo && embargo > 16693689600000;
     return (
       <div className="flex-container topbar__scheduler">
-        {(scheduledLaunch || embargo) &&
+        {(scheduledLaunch || (embargo && !hasPreventedPublication)) &&
           !showDatePicker && (
             <div className="topbar__launch-label">
               <div>
@@ -207,6 +256,13 @@ export default class ScheduledLaunch extends React.Component {
               </div>
             </div>
           )}
+        {hasPreventedPublication && (
+          <div className="topbar__launch-label">
+            <span className="scheduledSummary--embargo">
+              Publication prevented
+            </span>
+          </div>
+        )}
         {showDatePicker && (
           <DatePicker
             editable={true}

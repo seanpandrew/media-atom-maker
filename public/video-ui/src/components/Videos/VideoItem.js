@@ -55,17 +55,19 @@ export default class VideoItem extends React.Component {
             </div>
             <div className="grid__status__overlay">
               {this.renderPill()}
+              {embargo && (
+                <span className="publish__label label__frontpage__embargo label__frontpage__overlay">
+                  <Icon textClass="always-show" icon="not_interested">
+                    {embargo < 16693689600000
+                      ? moment(embargo).format('D MMM HH:mm')
+                      : 'Publication prevented'}
+                  </Icon>
+                </span>
+              )}
               {scheduledLaunch && (
                 <span className="publish__label label__frontpage__scheduledLaunch label__frontpage__overlay">
                   <Icon textClass="always-show" icon="access_time">
                     {moment(scheduledLaunch).format('D MMM HH:mm')}
-                  </Icon>
-                </span>
-              )}
-              {embargo && (
-                <span className="publish__label label__frontpage__embargo label__frontpage__overlay">
-                  <Icon textClass="always-show" icon="not_interested">
-                    {moment(embargo).format('D MMM HH:mm')}
                   </Icon>
                 </span>
               )}
