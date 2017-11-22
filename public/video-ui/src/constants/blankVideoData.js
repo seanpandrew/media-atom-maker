@@ -14,6 +14,12 @@ export const blankVideoData = {
   commentsEnabled: false,
   commissioningDesks: [],
   contentChangeDetails: {
+    scheduledLaunch: {
+      date: null
+    },
+    embargo: {
+      date: null
+    },
     revision: 0
   },
   blockAds: false,

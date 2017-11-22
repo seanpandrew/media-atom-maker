@@ -5,7 +5,8 @@ import moment from 'moment';
 import Icon from '../Icon';
 
 const isFutureDate = date => date && moment(date).isAfter(moment());
-const isSameOrAfter = (dateA, dateB) => moment(dateA).isSameOrAfter(moment(dateB));
+const isSameOrAfter = (dateA, dateB) =>
+  moment(dateA).isSameOrAfter(moment(dateB));
 const isAfter = (dateA, dateB) => moment(dateA).isAfter(moment(dateB));
 
 export default class ScheduledLaunch extends React.Component {
@@ -24,6 +25,17 @@ export default class ScheduledLaunch extends React.Component {
     showScheduleOptions: false,
     invalidDateError: null
   };
+
+  componentWillReceiveProps(nextProps) {
+    const embargo =
+      nextProps.video.contentChangeDetails.embargo &&
+      nextProps.video.contentChangeDetails.embargo.date;
+    const scheduledLaunch =
+      nextProps.video.contentChangeDetails.scheduledLaunch &&
+      nextProps.video.contentChangeDetails.scheduledLaunch.date;
+    this.setState({ selectedScheduleDate: scheduledLaunch || embargo });
+    this.setState({ selectedEmbargoDate: embargo || scheduledLaunch });
+  }
 
   validateDate = (date, actionType) => {
     if (!date) {
@@ -195,7 +207,10 @@ export default class ScheduledLaunch extends React.Component {
           <li>
             <button
               className="btn btn--list"
-              onClick={() => this.removeDate('embargo')}
+              onClick={() => {
+                this.removeDate('embargo');
+                this.setState({ showScheduleOptions: false });
+              }}
               disabled={!video || videoEditOpen}
             >
               Remove indefinite embargo
@@ -235,6 +250,7 @@ export default class ScheduledLaunch extends React.Component {
       contentChangeDetails.embargo &&
       contentChangeDetails.embargo.date;
     const hasPreventedPublication = embargo && embargo > 16693689600000;
+
     return (
       <div className="flex-container topbar__scheduler">
         {(scheduledLaunch || (embargo && !hasPreventedPublication)) &&
@@ -259,7 +275,7 @@ export default class ScheduledLaunch extends React.Component {
         {hasPreventedPublication && (
           <div className="topbar__launch-label">
             <span className="scheduledSummary--embargo">
-              Publication prevented
+              Embargoed indefinitely
             </span>
           </div>
         )}
@@ -269,8 +285,8 @@ export default class ScheduledLaunch extends React.Component {
             onUpdateField={date => this.setDate(date, actionType)}
             fieldValue={
               actionType === 'schedule'
-                ? selectedScheduleDate || scheduledLaunch
-                : selectedEmbargoDate || embargo
+                ? selectedScheduleDate
+                : selectedEmbargoDate
             }
           />
         )}
@@ -326,9 +342,7 @@ export default class ScheduledLaunch extends React.Component {
             className="button__secondary--cancel"
             onClick={() =>
               this.setState({
-                showDatePicker: false,
-                selectedScheduleDate: null,
-                selectedEmbargoDate: null
+                showDatePicker: false
               })
             }
           >

@@ -71,7 +71,7 @@ export default class VideoItem extends React.Component {
                 >
                   <Icon textClass="always-show" icon="not_interested">
                     {hasPreventedPublication
-                      ? 'Publication prevented'
+                      ? 'Embargoed indefinitely'
                       : moment(embargo).format('D MMM HH:mm')}
                   </Icon>
                 </span>
