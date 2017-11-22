@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { findSmallestAssetAboveWidth } from '../../util/imageHelpers';
 import moment from 'moment';
 import Icon from '../Icon';
+import ReactTooltip from 'react-tooltip';
 
 export default class VideoItem extends React.Component {
   renderPill() {
@@ -46,6 +47,7 @@ export default class VideoItem extends React.Component {
     const embargo =
       video.contentChangeDetails.embargo &&
       video.contentChangeDetails.embargo.date;
+    const hasPreventedPublication = embargo && embargo > 16693689600000;
     return (
       <li className="grid__item">
         <Link className="grid__link" to={'/videos/' + video.id}>
@@ -54,18 +56,33 @@ export default class VideoItem extends React.Component {
               {this.renderItemImage()}
             </div>
             <div className="grid__status__overlay">
+              <ReactTooltip />
               {this.renderPill()}
               {embargo && (
-                <span className="publish__label label__frontpage__embargo label__frontpage__overlay">
+                <span
+                  data-tip={
+                    hasPreventedPublication
+                      ? 'This video has been embargoed indefinitely'
+                      : `Embargoed until ${moment(embargo).format(
+                          'Do MMM YYYY HH:mm'
+                        )}`
+                  }
+                  className="publish__label label__frontpage__embargo label__frontpage__overlay"
+                >
                   <Icon textClass="always-show" icon="not_interested">
-                    {embargo < 16693689600000
-                      ? moment(embargo).format('D MMM HH:mm')
-                      : 'Publication prevented'}
+                    {hasPreventedPublication
+                      ? 'Publication prevented'
+                      : moment(embargo).format('D MMM HH:mm')}
                   </Icon>
                 </span>
               )}
               {scheduledLaunch && (
-                <span className="publish__label label__frontpage__scheduledLaunch label__frontpage__overlay">
+                <span
+                  data-tip={`Scheduled to launch ${moment(
+                    scheduledLaunch
+                  ).format('Do MMM YYYY HH:mm')}`}
+                  className="publish__label label__frontpage__scheduledLaunch label__frontpage__overlay"
+                >
                   <Icon textClass="always-show" icon="access_time">
                     {moment(scheduledLaunch).format('D MMM HH:mm')}
                   </Icon>
