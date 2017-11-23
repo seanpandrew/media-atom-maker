@@ -1,6 +1,6 @@
 package controllers
 
-import com.gu.media.pluto.PlutoProject
+import com.gu.media.pluto.PlutoUpsertRequest
 import com.gu.pandahmac.HMACAuthActions
 import data.{DataStores, UnpackedDataStores}
 import play.api.libs.json.Json
@@ -17,26 +17,10 @@ class PlutoProjectController(val authActions: HMACAuthActions, override val stor
     Ok(Json.toJson(plutoProjects))
   }
 
-  def createProject() = APIHMACAuthAction { implicit req =>
-    parse[PlutoProject](req) { data: PlutoProject => {
-      stores.plutoProjectStore.put(data)
-      Ok(Json.toJson(data))
-    }}
-  }
-
-  def getProject(id: String) = APIHMACAuthAction {
-    stores.plutoProjectStore.get(id) match {
-      case Some(p) => Ok(Json.toJson(p))
-      case _ => NotFound
-    }
-  }
-
-  def updateProject(id: String) = APIHMACAuthAction { implicit req =>
-    parse[PlutoProject](req) { data: PlutoProject => {
-      stores.plutoProjectStore.update(id, data) match {
-        case Some(_) => Ok(Json.toJson(data))
-        case None => NotFound
-      }
+  def upsertProject() = APIHMACAuthAction { implicit req =>
+    parse[PlutoUpsertRequest](req) { data: PlutoUpsertRequest => {
+      val project = stores.plutoProjectStore.upsert(data)
+      Ok(Json.toJson(project))
     }}
   }
 }
